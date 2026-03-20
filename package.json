@@ -1,0 +1,26 @@
+{
+  "name": "minecraft-slave-bot",
+  "version": "1.0.0",
+  "description": "Bot de Mineflayer para minería automatizada con control vía MCP.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gonsalomon/minecraft-slave-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/gonsalomon/minecraft-slave-bot/issues"
+  },
+  "homepage": "https://github.com/gonsalomon/minecraft-slave-bot#readme",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "mineflayer": "^4.0.0",
+    "mineflayer-pathfinder": "^2.4.5"
+  }
+}
