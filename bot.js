@@ -1097,6 +1097,26 @@ async function reEquipTool() {
   }
 }
 
+async function safeDig(block) {
+  if (!block || block.type === 0) return false  // aire, nada que hacer
+
+  // Re-leer el bloque desde el mundo por si ya cambió
+  const fresh = bot.blockAt(block.position)
+  if (!fresh || fresh.type === 0 || fresh.name === 'air') return false
+
+  // Equipar la herramienta correcta antes de cada bloque
+  await reEquipTool()
+
+  try {
+    await bot.dig(fresh, true)   // true = forzar stop al terminar
+    return true
+  } catch (err) {
+    // "block is already air" es normal — no es un error real
+    if (err.message?.includes('air') || err.message?.includes('already')) return false
+    throw err
+  }
+}
+
 async function equipBestArmor() {
   bot.chat('Revisando armadura...')
   let equipped = 0
