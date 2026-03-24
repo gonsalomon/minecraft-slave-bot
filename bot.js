@@ -34,6 +34,7 @@ let followingPlayer       = false
 let followInterval        = null
 let huntingActive         = false
 let isEating = false
+let reportInterval = null;
 
 // =====================
 //   PERSISTENCIA
@@ -174,6 +175,8 @@ bot.on('spawn', () => {
   bot.pathfinder.setMovements(movements)
   loadState()
   bot.chat('Listo. Voy hacia vos...')
+  const p = bot.entity.position
+  bot.chat(`Estoy en X:${Math.floor(p.x)} Y:${Math.floor(p.y)} Z:${Math.floor(p.z)}`)
 
   setTimeout(() => {
     const target = bot.players[MASTER]?.entity
@@ -257,13 +260,13 @@ bot.on('chat', async (username, message) => {
   if (message.startsWith('mine ')) {
   const p = message.split(' ')
   // Accept x y z from the command
-  const [x, y, z] = [Number(p), Number(p), Number(p)]
+  const [x, y, z] = [Number(p[1]), Number(p[2]), Number(p[3])]
   if ([x, y, z].some(isNaN)) { bot.chat('Uso: mine x y z'); return }
   
   // Store the full coordinate including the Y you want it to return to
   mineLocation = { x, y, z }; 
   saveState()
-  bot.chat('Mina registrada en X:${x} Y:${y} Z:${z}. Usaré Y:${y} como base.')
+  bot.chat(`Mina registrada en X:${x} Y:${y} Z:${z}. Usaré Y:${y} como base.`)
   return
 }
 
@@ -348,7 +351,8 @@ bot.on('chat', async (username, message) => {
   }
 
   // MINERÍA
-if (message.startsWith('usa ')) {
+
+  if (message.startsWith('usa ')) {
   const pickaxeName = message.split(' ')[1]
   if (!pendingPickaxe || pendingPickaxe !== pickaxeName) {
     bot.chat(`No estaba esperando confirmación para ${pickaxeName}.`)
@@ -447,6 +451,22 @@ if (message.startsWith('usa ')) {
 // =====================
 //   MINERÍA: CERCA
 // =====================
+function startReportingLocation(minutes = 5) {
+  if (reportInterval) clearInterval(reportInterval);
+  
+  // Convert minutes to milliseconds
+  const ms = minutes * 60000;
+  
+  reportInterval = setInterval(() => {
+    const p = bot.entity.position;
+    const task = miningActive ? `minando ${miningTarget}` : 
+                 huntingActive ? 'cazando' : 
+                 followingPlayer ? 'siguiéndote' : 'esperando órdenes';
+    
+    bot.chat(`📍 Reporte: Estoy en X:${Math.floor(p.x)} Y:${Math.floor(p.y)} Z:${Math.floor(p.z)}. Estado: ${task}.`);
+  }, ms);
+}
+
 async function nearbyMiningLoop(yTolerance = 10) {
   console.log('2 entré a la función')
   const baseY = Math.floor(bot.entity.position.y)
@@ -485,13 +505,14 @@ async function shaftMiningLoop() {
   const cx = Math.floor(mineLocation.x);
   const cz = Math.floor(mineLocation.z);
 
-  bot.chat('Yendo a la mina. Objetivo Y: ${targetY}...');
-  
+  bot.chat(`Yendo a la mina. Objetivo Y: ${targetY}...`);
+  console.log('1 entré a shaftmining')
   try {
     // Navigate to the entrance
+    console.log('2 estoy tratando')
     await bot.pathfinder.goto(new goals.GoalNear(cx, mineLocation.y, cz, 2));
-    
     // Start the descent using your existing staircase logic
+    console.log('3 el goto anda')
     await digStaircaseDown(cx, cz, targetY);
   } catch (err) {
     bot.chat('No pude llegar o iniciar la excavación.');
@@ -503,40 +524,39 @@ async function shaftMiningLoop() {
 //   MINERÍA: SERPENTINA
 // =====================
 async function digStaircaseDown(cx, cz, targetY) {
-  const HALF = 4 
+  console.log('4 entro a digstaircasedown')
+  const HALF = 4
   let currentY = Math.floor(bot.entity.position.y)
   const stepX = cx + HALF - 1
   const stepZ = cz + HALF - 1
+  console.log('4a seteo variables')
+  console.log(`4a miningActive está en ${miningActive} y currentY > targetY están en ${currentY}, ${targetY}`)
+  while (miningActive && currentY >= targetY) {
+    console.log('4b entro al if')
+    bot.chat(`Minando capa Y:${currentY}...`)
 
-  while (miningActive && currentY > targetY) {
-    bot.chat('Minando capa Y:${currentY}...')
-
-    // 1. Mine the layer but skip protected blocks
     await mineLayer(cx, cz, currentY, HALF)
+    
     if (!miningActive) return
 
-    // 2. Return to the staircase position
     try {
+      console.log('4c entro al try')
       await bot.pathfinder.goto(new goals.GoalNear(stepX, currentY, stepZ, 1))
     } catch { await bot.waitForTicks(5); continue }
 
-    // 3. Selective Digging for the next step down
     const blocksToDig = [
-      bot.blockAt(new Vec3(stepX, currentY - 1, stepZ)), // Feet level next
-      bot.blockAt(new Vec3(stepX, currentY,     stepZ))  // Head level next
+      bot.blockAt(new Vec3(stepX, currentY - 1, stepZ)),
+      bot.blockAt(new Vec3(stepX, currentY,     stepZ))
     ]
-
+    console.log(`4d entre a minar ${blocksToDig}.`)
     for (const block of blocksToDig) {
       if (block && block.diggable) {
-        // Check if the block name contains any protected strings (e.g., 'cobblestone_stairs')
+        console.log(`puedo minar, a ver si es protected`)
         const isProtected = PROTECTED_BLOCKS.some(p => block.name.includes(p))
-        if (!isProtected) {
-          await safeDig(block)
-        }
+        if (!isProtected) await safeDig(block)
       }
     }
 
-    // 4. Check for hazards and move down
     if (hasLavaNearby(new Vec3(stepX, currentY - 1, stepZ))) {
       bot.chat('🔥 Lava detectada en el escalón. Abortando.')
       miningActive = false
@@ -544,8 +564,8 @@ async function digStaircaseDown(cx, cz, targetY) {
     }
 
     try {
-      await bot.pathfinder.goto(new goals.GoalNear(stepX, currentY - 1, stepZ, 0))
-    } catch { await bot.waitForTicks(5) }
+      await bot.pathfinder.goto(new goals.GoalNear(stepX, currentY - 1, stepZ, 1))
+    } catch { await bot.waitForTicks(5); continue }  // ← continue agregado
 
     currentY--
   }
@@ -592,7 +612,6 @@ async function mineLayer(cx, cz, layerY, half) {
           if (PROTECTED_BLOCKS.some(name => block.name.includes(name))) {
             continue; // Skip mining this block
           }
-          if (isPathBlock) continue
           await safeDig(block)
         }
 
@@ -1107,6 +1126,7 @@ async function reEquipTool() {
 }
 
 async function safeDig(block) {
+  console.log(`5a entro a safedig`)
   if (!block || block.type === 0) return false  // aire, nada que hacer
 
   // Re-leer el bloque desde el mundo por si ya cambió
@@ -1115,9 +1135,10 @@ async function safeDig(block) {
 
   // Equipar la herramienta correcta antes de cada bloque
   await reEquipTool()
-
+  console.log(`5b puedo probar de minarlo`)
   try {
     await bot.dig(fresh, true)   // true = forzar stop al terminar
+    console.log(`5c pude`)
     return true
   } catch (err) {
     // "block is already air" es normal — no es un error real
