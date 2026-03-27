@@ -132,12 +132,6 @@ const OPTIMAL_Y = {
 
 const MINE_RADIUS = 16
 
-const PROTECTED_BLOCKS = [
-  'stone_stairs', 'cobblestone_stairs', 'oak_stairs', 
-  'stone_slab', 'cobblestone_slab', 'ladder', 'torch',
-  'stairs', 'slab', 'rail', 'chest'
-];
-
 const FOOD_PRIORITY = [
   'golden_carrot',
   'cooked_porkchop', 'cooked_beef', 'cooked_mutton',
@@ -269,6 +263,13 @@ bot.on('chat', async (username, message) => {
   bot.chat(`Mina registrada en X:${x} Y:${y} Z:${z}. Usaré Y:${y} como base.`)
   return
 }
+    const p = message.split(' ')
+    const [x,y,z] = [Number(p[1]),Number(p[2]),Number(p[3])]
+    if ([x,y,z].some(isNaN)) { bot.chat('Uso: mine x y z'); return }
+    mineLocation = { x, y, z }; saveState()
+    bot.chat(`Mina: X:${x} Y:${y} Z:${z}`)
+    return
+  }
 
   if (message.startsWith('bed ')) {
     const p = message.split(' ')
@@ -500,23 +501,26 @@ async function nearbyMiningLoop(yTolerance = 10) {
 //   MINERÍA: CHUNKS
 // =====================
 async function shaftMiningLoop() {
-  // Use the registered mine Y if available, otherwise use the block's optimal depth
-  const targetY = mineLocation.y ?? (OPTIMAL_Y[miningTarget] ?? -58);
-  const cx = Math.floor(mineLocation.x);
-  const cz = Math.floor(mineLocation.z);
+  const optimalY = OPTIMAL_Y[miningTarget] ?? -58
+  const cx = Math.floor(mineLocation.x)
+  const cz = Math.floor(mineLocation.z)
 
-  bot.chat(`Yendo a la mina. Objetivo Y: ${targetY}...`);
-  console.log('1 entré a shaftmining')
+  bot.chat(`Yendo a la mina (X:${cx} Z:${cz})...`)
   try {
-    // Navigate to the entrance
-    console.log('2 estoy tratando')
-    await bot.pathfinder.goto(new goals.GoalNear(cx, mineLocation.y, cz, 2));
-    // Start the descent using your existing staircase logic
-    console.log('3 el goto anda')
-    await digStaircaseDown(cx, cz, targetY);
-  } catch (err) {
-    bot.chat('No pude llegar o iniciar la excavación.');
-    miningActive = false;
+    await bot.pathfinder.goto(new goals.GoalNear(cx, mineLocation.y, cz, 2))
+  } catch {
+    bot.chat('No pude llegar a la mina.')
+    miningActive = false
+    return
+  }
+
+  bot.chat(`Bajando en escalera hasta Y:${optimalY}...`)
+  await digStaircaseDown(cx, cz, optimalY)
+
+  if (miningActive) {
+    bot.chat(`Llegué a Y:${optimalY}. Terminé.`)
+    miningActive = false
+    await depositInChest()
   }
 }
 
@@ -524,9 +528,10 @@ async function shaftMiningLoop() {
 //   MINERÍA: SERPENTINA
 // =====================
 async function digStaircaseDown(cx, cz, targetY) {
-  console.log('4 entro a digstaircasedown')
-  const HALF = 4
+  const HALF  = 4           // radio del cuadrado: 8x8 → ±4 desde el centro
   let currentY = Math.floor(bot.entity.position.y)
+
+  // El escalón de bajada siempre está en la esquina SE del cuadrado
   const stepX = cx + HALF - 1
   const stepZ = cz + HALF - 1
   console.log('4a seteo variables')
@@ -535,39 +540,50 @@ async function digStaircaseDown(cx, cz, targetY) {
     console.log('4b entro al if')
     bot.chat(`Minando capa Y:${currentY}...`)
 
+  while (miningActive && currentY > targetY) {
+
+    bot.chat(`🪨 Minando capa Y:${currentY}...`)
+
+    // 1. Minar el cuadrado 8x8 en este nivel
     await mineLayer(cx, cz, currentY, HALF)
     
     if (!miningActive) return
 
+    // 2. Depositar si hace falta
+    if (bot.inventory.emptySlotCount() < 4) {
+      await depositInChest()
+      if (!miningActive) return
+      try {
+        await bot.pathfinder.goto(new goals.GoalNear(stepX, currentY, stepZ, 1))
+      } catch {}
+    }
+
+    // 3. Ir a la posición del escalón
     try {
       console.log('4c entro al try')
       await bot.pathfinder.goto(new goals.GoalNear(stepX, currentY, stepZ, 1))
     } catch { await bot.waitForTicks(5); continue }
 
-    const blocksToDig = [
-      bot.blockAt(new Vec3(stepX, currentY - 1, stepZ)),
-      bot.blockAt(new Vec3(stepX, currentY,     stepZ))
-    ]
-    console.log(`4d entre a minar ${blocksToDig}.`)
-    for (const block of blocksToDig) {
-      if (block && block.diggable) {
-        console.log(`puedo minar, a ver si es protected`)
-        const isProtected = PROTECTED_BLOCKS.some(p => block.name.includes(p))
-        if (!isProtected) await safeDig(block)
-      }
-    }
+    // 4. Cavar los dos bloques del escalón (pies y cabeza al nivel inferior)
+    const feet = bot.blockAt(new Vec3(stepX, currentY - 1, stepZ))
+    const head = bot.blockAt(new Vec3(stepX, currentY,     stepZ))
+    if (head && head.diggable) await safeDig(head)
+    if (feet && feet.diggable) await safeDig(feet)
 
+    // 5. Lava justo debajo?
     if (hasLavaNearby(new Vec3(stepX, currentY - 1, stepZ))) {
       bot.chat('🔥 Lava detectada en el escalón. Abortando.')
       miningActive = false
       return
     }
 
+    // 6. Bajar al nivel siguiente
     try {
       await bot.pathfinder.goto(new goals.GoalNear(stepX, currentY - 1, stepZ, 1))
     } catch { await bot.waitForTicks(5); continue }  // ← continue agregado
 
     currentY--
+    bot.chat(`⬇️ Ahora en Y:${currentY}`)
   }
 }
 
@@ -609,17 +625,11 @@ async function mineLayer(cx, cz, layerY, half) {
 
         if (block.name === miningTarget) {
           if (hasLavaNearby(block.position)) continue
-          if (PROTECTED_BLOCKS.some(name => block.name.includes(name))) {
-            continue; // Skip mining this block
-          }
           await safeDig(block)
         }
 
         if (['stone','deepslate','tuff','andesite',
              'diorite','granite','gravel','dirt'].includes(block.name)) {
-              if (PROTECTED_BLOCKS.some(name => block.name.includes(name))) {
-                continue; // Skip mining this block
-              }
           await safeDig(block)
         }
       }
