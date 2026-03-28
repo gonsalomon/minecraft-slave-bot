@@ -1,18 +1,18 @@
 {
   "chestLocation": {
-    "x": -427,
+    "x": -426,
     "y": 69,
     "z": 628
   },
   "craftingTableLocation": {
-    "x": -428,
+    "x": -425,
     "y": 69,
-    "z": 628
+    "z": 728
   },
   "mineLocation": {
-    "x": -445,
-    "y": 57,
-    "z": 675
+    "x": -446,
+    "y": 37,
+    "z": 672
   },
   "farmLocation": {
     "x": -419,
