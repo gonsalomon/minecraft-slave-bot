@@ -87,6 +87,59 @@ const PICKAXE_TIER = {
   'iron_pickaxe': 3, 'diamond_pickaxe': 4, 'netherite_pickaxe': 5
 }
 
+// Prioridad de picos (de más restrictivo a menos restrictivo)
+const PICKAXE_PRIORITY = [
+  'wooden_pickaxe',   // +1
+  'stone_pickaxe',    // +2 - puede minar hierro
+  'iron_pickaxe',     // +3 - puede minar diamante
+  'golden_pickaxe',   // +2 - rápido pero frágil
+  'diamond_pickaxe',  // +4
+  'netherite_pickaxe' // +5
+]
+
+// Materiales necesarios para cada pico
+const PICKAXE_CRAFT = {
+  'wooden_pickaxe': { planks: 3, sticks: 2, planksType: 'oak_planks' },
+  'stone_pickaxe': { cobblestone: 3, sticks: 2 },
+  'iron_pickaxe': { iron_ingot: 3, sticks: 2 },
+  'golden_pickaxe': { gold_ingot: 3, sticks: 2 },
+  'diamond_pickaxe': { diamond: 3, sticks: 2 }
+}
+
+// Nivel mínimo de pico para cada bloque
+const PICKAXE_REQUIRED = {
+  // Nivel 1 (madera): piedra, carbón, netherrack
+  'stone': 'wooden_pickaxe',
+  'cobblestone': 'wooden_pickaxe',
+  'coal_ore': 'wooden_pickaxe',
+  'deepslate_coal_ore': 'wooden_pickaxe',
+  'netherrack': 'wooden_pickaxe',
+  'andesite': 'wooden_pickaxe',
+  'diorite': 'wooden_pickaxe',
+  'granite': 'wooden_pickaxe',
+  'tuff': 'wooden_pickaxe',
+  
+  // Nivel 2 (piedra): hierro, lapislázuli
+  'iron_ore': 'stone_pickaxe',
+  'deepslate_iron_ore': 'stone_pickaxe',
+  'lapis_ore': 'stone_pickaxe',
+  'deepslate_lapis_ore': 'stone_pickaxe',
+  'gold_ore': 'stone_pickaxe',
+  'deepslate_gold_ore': 'stone_pickaxe',
+  
+  // Nivel 3 (hierro): diamante, esmeralda, redstone
+  'diamond_ore': 'iron_pickaxe',
+  'deepslate_diamond_ore': 'iron_pickaxe',
+  'emerald_ore': 'iron_pickaxe',
+  'deepslate_emerald_ore': 'iron_pickaxe',
+  'redstone_ore': 'iron_pickaxe',
+  'deepslate_redstone_ore': 'iron_pickaxe',
+  
+  // Nivel 4 (diamante): obsidiana, ancient debris
+  'obsidian': 'diamond_pickaxe',
+  'ancient_debris': 'diamond_pickaxe'
+}
+
 const SWORD_PRIORITY = [
   'netherite_sword', 'diamond_sword', 'iron_sword',
   'stone_sword', 'golden_sword', 'wooden_sword'
@@ -155,6 +208,63 @@ const EXPLORATION_CONFIG = {
   chunkRadius: 3, checkInterval: 5000, moveSpeed: 'normal'
 }
 
+const MINING_STATE_FILE = './mining_state.json'
+let miningProgress = {
+  active: false,
+  target: null,
+  currentY: null,
+  chunkX: null,
+  chunkZ: null,
+  startX: null,
+  startZ: null,
+  layer: null
+}
+
+function saveMiningProgress() {
+  if (!miningActive) return
+  const progress = {
+    active: miningActive,
+    target: miningTarget,
+    currentY: currentMineY,
+    chunkX: currentChunkMining?.chunkX,
+    chunkZ: currentChunkMining?.chunkZ,
+    startX: currentChunkMining?.startX,
+    startZ: currentChunkMining?.startZ,
+    layer: currentChunkMining?.currentY
+  }
+  fs.writeFileSync(MINING_STATE_FILE, JSON.stringify(progress, null, 2))
+}
+
+function loadMiningProgress() {
+  try {
+    const data = JSON.parse(fs.readFileSync(MINING_STATE_FILE, 'utf8'))
+    if (data.active && data.target) {
+      miningProgress = data
+      console.log('📂 Progreso de minería cargado:', data)
+      return true
+    }
+  } catch {
+    console.log('📂 Sin progreso de minería previo')
+  }
+  return false
+}
+
+function clearMiningProgress() {
+  if (fs.existsSync(MINING_STATE_FILE)) {
+    fs.unlinkSync(MINING_STATE_FILE)
+  }
+  miningProgress = {
+    active: false,
+    target: null,
+    currentY: null,
+    chunkX: null,
+    chunkZ: null,
+    startX: null,
+    startZ: null,
+    layer: null
+  }
+}
+
 // =====================
 //   ESTADO GLOBAL
 // =====================
@@ -168,6 +278,7 @@ let miningActive = false
 let miningTarget = null
 let currentMineY = null
 let pendingPickaxe = null
+let currentChunkMining = null  // { startY, currentY, chunkX, chunkZ }
 
 let followingPlayer = false
 let followInterval = null
@@ -241,7 +352,7 @@ async function getItemFromChest(itemName, count) {
 }
 
 async function depositInChest() {
-  if (!chestLocation) { bot.chat('No hay cofre registrado.'); return }
+  if (!chestLocation) { sendPrivateMessage('No hay cofre registrado.'); return }
   if (depositState.active) { while (depositState.active) await bot.waitForTicks(10); return }
 
   const currentHash = getInventoryHash()
@@ -263,7 +374,7 @@ async function depositInChest() {
   try {
     await safeGoto(chestLocation.x, chestLocation.y, chestLocation.z, 2)
     const chestBlock = bot.blockAt(new Vec3(chestLocation.x, chestLocation.y, chestLocation.z))
-    if (!chestBlock || !chestBlock.name.includes('chest')) { bot.chat('No encuentro el cofre.'); return }
+    if (!chestBlock || !chestBlock.name.includes('chest')) { sendPrivateMessage('No encuentro el cofre.'); return }
 
     const armorNames = new Set(Object.values(ARMOR_PRIORITY).flat())
     const keepTypes = new Set()
@@ -285,13 +396,13 @@ async function depositInChest() {
     }
     chest.close()
 
-    if (depositedCount > 0) bot.chat(`✅ Depositados ${depositedCount} items`)
+    if (depositedCount > 0) sendPrivateMessage(`✅ Depositados ${depositedCount} items`)
     depositState.lastInventoryHash = getInventoryHash()
     await reEquipTool()
 
     if (wasMiningActive && miningTarget && !huntingActive && !followingPlayer) {
       miningActive = true
-      setTimeout(() => { if (miningActive && miningTarget) shaftMiningLoop() }, 1000)
+      setTimeout(() => { if (miningActive && miningTarget) chunkMiningLoop() }, 1000)
     }
   } catch (err) {
     if (!err.message?.includes('GoalChanged')) console.error('depositInChest error:', err)
@@ -305,26 +416,71 @@ async function depositInChest() {
 //   PATHFINDING & MOVIMIENTO
 // =====================
 async function safeSetGoal(goal, priority = false) {
-  if (pathfindingLock) { pendingGoal = { goal, priority }; return false }
+  if (pathfindingLock) { 
+    pendingGoal = { goal, priority }
+    return false 
+  }
   try {
     pathfindingLock = true
     bot.pathfinder.setGoal(goal, priority)
     return true
-  } catch (err) { return false }
-  finally {
+  } catch (err) { 
+    return false 
+  } finally {
+    // No liberar inmediatamente, dar tiempo a que el pathfinding arranque
     setTimeout(() => {
       pathfindingLock = false
-      if (pendingGoal) { const { goal, priority } = pendingGoal; pendingGoal = null; safeSetGoal(goal, priority) }
-    }, 500)
+      if (pendingGoal) { 
+        const { goal, priority } = pendingGoal
+        pendingGoal = null
+        safeSetGoal(goal, priority)
+      }
+    }, 1000)  // Aumentado de 500 a 1000ms
   }
 }
 
 async function safeGoto(x, y, z, range = 2) {
-  if (pathfindingLock) await new Promise(resolve => { const check = setInterval(() => { if (!pathfindingLock) { clearInterval(check); resolve() } }, 100) })
+  // Resetear lock si lleva mucho tiempo
+  let waited = 0
+  while (pathfindingLock && waited < 30) {
+    await new Promise(resolve => setTimeout(resolve, 100))
+    waited++
+  }
+  if (pathfindingLock) {
+    console.log('⚠️ pathfindingLock timeout en safeGoto, forzando reset')
+    pathfindingLock = false
+    if (bot.pathfinder?.goal) {
+      bot.pathfinder.setGoal(null)
+    }
+  }
+  
+  // Cancelar cualquier goal previo
+  if (bot.pathfinder?.goal) {
+    bot.pathfinder.setGoal(null)
+    await new Promise(resolve => setTimeout(resolve, 50))
+  }
+  
   setSprintMode(false)
-  try { await bot.pathfinder.goto(new goals.GoalNear(x, y, z, range)) }
-  catch (err) { if (err.message !== 'GoalChanged: The goal was changed before it could be completed!') throw err }
-  finally { setSprintMode(true); pathfindingLock = false }
+  try { 
+    pathfindingLock = true
+    await bot.pathfinder.goto(new goals.GoalNear(x, y, z, range))
+  } catch (err) { 
+    if (err.message === 'GoalChanged: The goal was changed before it could be completed!') {
+      console.log('🔄 GoalChanged ignorado, reintentando...')
+      await new Promise(resolve => setTimeout(resolve, 100))
+      // Reintentar una vez
+      try {
+        await bot.pathfinder.goto(new goals.GoalNear(x, y, z, range))
+      } catch (e) {
+        if (!e.message?.includes('GoalChanged')) throw e
+      }
+    } else if (!err.message?.includes('GoalChanged')) {
+      throw err
+    }
+  } finally { 
+    setSprintMode(true)
+    pathfindingLock = false
+  }
 }
 
 function setSprintMode(enabled) {
@@ -351,14 +507,48 @@ function getNearestHostile(maxDistance) {
 }
 
 async function pickupNearbyItems() {
+  // No recoger items si estamos en medio de algo importante
+  if (miningActive || huntingActive || followingPlayer || depositState.active) return
+  
   const droppedItems = Object.values(bot.entities).filter(e => e.name === 'item' && e.position.distanceTo(bot.entity.position) < 5)
   if (droppedItems.length === 0) return
+  
   for (const item of droppedItems) {
-    try { await safeGoto(item.position.x, item.position.y, item.position.z, 1); await bot.waitForTicks(10) }
-    catch (err) { console.error('Error picking up item:', err) }
+    try { 
+      // Usar safeSetGoal en lugar de safeGoto directo para mejor manejo
+      await safeSetGoal(new goals.GoalNear(item.position.x, item.position.y, item.position.z, 1), true)
+      await bot.waitForTicks(10)
+    } catch (err) { 
+      if (!err.message?.includes('GoalChanged')) console.error('Error picking up item:', err) 
+    }
   }
   const hashNow = getInventoryHash()
   if (hashNow !== depositState.lastInventoryHash) await depositInChest()
+}
+
+async function safePickupItem(item) {
+  if (!item || !item.position) return false
+  try {
+    // Guardar estado actual
+    const wasFollowing = followingPlayer
+    const wasMining = miningActive
+    
+    // Pausar temporalmente otras actividades
+    if (wasFollowing) followingPlayer = false
+    if (wasMining) miningActive = false
+    
+    await safeSetGoal(new goals.GoalNear(item.position.x, item.position.y, item.position.z, 1), true)
+    await bot.waitForTicks(10)
+    
+    // Restaurar estado
+    if (wasFollowing) followingPlayer = true
+    if (wasMining) miningActive = true
+    
+    return true
+  } catch (err) {
+    if (!err.message?.includes('GoalChanged')) console.error('safePickup error:', err)
+    return false
+  }
 }
 
 async function safeDig(block) {
@@ -369,6 +559,37 @@ async function safeDig(block) {
   await reEquipTool()
   try { await bot.dig(fresh, true); return true }
   catch (err) { if (err.message?.includes('air') || err.message?.includes('already')) return false; throw err }
+}
+
+// Función para pedir recursos al master por mensaje privado
+async function requestResource(resource, amount) {
+  sendPrivateMessage(`📢 Necesito ${amount}x ${resource}. Por favor, ponlo en el cofre o dame por chat. Esperando...`)
+  
+  // Esperar hasta 30 segundos a que aparezca en el cofre
+  let waited = 0
+  const checkInterval = 5000 // cada 5 segundos
+  
+  while (waited < 30000) {
+    await new Promise(resolve => setTimeout(resolve, checkInterval))
+    
+    if (chestLocation) {
+      const chest = await bot.openChest(bot.blockAt(new Vec3(chestLocation.x, chestLocation.y, chestLocation.z)))
+      const hasItem = chest.containerItems().some(i => i.name === resource)
+      chest.close()
+      
+      if (hasItem) {
+        if (await getItemFromChest(resource, amount)) {
+          sendPrivateMessage(`✅ Recibí ${amount}x ${resource} del cofre`)
+          return true
+        }
+      }
+    }
+    
+    waited += checkInterval
+  }
+  
+  sendPrivateMessage(`❌ No recibí ${resource}. Abortando.`)
+  return false
 }
 
 // =====================
@@ -437,7 +658,7 @@ async function equipBestArmor() {
           if (found) { await chest.withdraw(found.type, null, 1); if (i < bestTier) { bestName = found.name; bestTier = i }; break }
         }
         chest.close()
-      } catch (err) { bot.chat(`Error: ${err.message}`) }
+      } catch (err) { sendPrivateMessage(`Error: ${err.message}`) }
     }
 
     if (bestName && bestTier < currentTier) {
@@ -445,7 +666,7 @@ async function equipBestArmor() {
       if (item) { await bot.equip(item, slot); equipped++ }
     }
   }
-  if (equipped > 0) bot.chat(`✅ Equipadas ${equipped} pieza(s) nueva(s)`)
+  if (equipped > 0) sendPrivateMessage(`✅ Equipadas ${equipped} pieza(s) nueva(s)`)
   await reEquipTool()
 }
 
@@ -468,20 +689,57 @@ async function reEquipTool() {
 //   PICOS Y MINERÍA
 // =====================
 async function ensurePickaxe(blockName) {
-  const minPickaxe = PICKAXE_FOR_BLOCK[blockName] ?? 'stone_pickaxe'
-  const minTier = PICKAXE_TIER[minPickaxe]
+  // Determinar el pico mínimo necesario
+  const requiredPickaxe = PICKAXE_REQUIRED[blockName] || 'stone_pickaxe'
+  const requiredTier = PICKAXE_TIER[requiredPickaxe]
+  
+  // 1. Verificar si ya tenemos un pico equipado suficiente
   const equipped = bot.inventory.slots[36]
-  if (equipped && equipped.name.includes('pickaxe') && (PICKAXE_TIER[equipped.name] ?? 0) >= minTier) return true
-
-  const available = bot.inventory.items().filter(i => i.name.includes('pickaxe') && (PICKAXE_TIER[i.name] ?? 0) >= minTier)
-  if (available.length) { await equipPickaxe(available[0].name); return true }
-
+  if (equipped && equipped.name.includes('pickaxe')) {
+    const equippedTier = PICKAXE_TIER[equipped.name] || 0
+    if (equippedTier >= requiredTier) {
+      return true
+    }
+  }
+  
+  // 2. Buscar en inventario un pico suficiente
+  const available = bot.inventory.items()
+    .filter(i => i.name.includes('pickaxe'))
+    .sort((a, b) => (PICKAXE_TIER[b.name] || 0) - (PICKAXE_TIER[a.name] || 0))
+  
+  const suitable = available.find(i => (PICKAXE_TIER[i.name] || 0) >= requiredTier)
+  if (suitable) {
+    await equipPickaxe(suitable.name)
+    sendPrivateMessage(`🔧 Usando ${suitable.name}`)
+    return true
+  }
+  
+  // 3. Buscar en cofre
   if (chestLocation) {
     const chestPickaxes = await getPickaxesFromChest()
-    const suitable = chestPickaxes.filter(p => (PICKAXE_TIER[p.name] ?? 0) >= minTier)
-    if (suitable.length && await getItemFromChest(suitable[0].name, 1)) { await equipPickaxe(suitable[0].name); return true }
+    const chestSuitable = chestPickaxes.find(p => (PICKAXE_TIER[p.name] || 0) >= requiredTier)
+    if (chestSuitable && await getItemFromChest(chestSuitable.name, 1)) {
+      await equipPickaxe(chestSuitable.name)
+      sendPrivateMessage(`📦 Saqué ${chestSuitable.name} del cofre`)
+      return true
+    }
   }
-  if (await craftPickaxe(minPickaxe)) { await equipPickaxe(minPickaxe); return true }
+  
+  // 4. Intentar craftear el pico necesario (o uno mejor si podemos)
+  sendPrivateMessage(`🔨 No tengo pico suficiente para ${blockName}. Intentando craftear...`)
+  
+  // Intentar craftear desde el más necesario hasta el mejor disponible
+  const craftAttempts = ['stone_pickaxe', 'iron_pickaxe', 'diamond_pickaxe']
+  for (const pickaxe of craftAttempts) {
+    const tier = PICKAXE_TIER[pickaxe]
+    if (tier >= requiredTier && await tryCraftPickaxe(pickaxe)) {
+      await equipPickaxe(pickaxe)
+      sendPrivateMessage(`✅ Crafteado ${pickaxe}`)
+      return true
+    }
+  }
+  
+  sendPrivateMessage(`❌ No puedo obtener un pico para ${blockName}. Necesito: ${requiredPickaxe}`)
   return false
 }
 
@@ -518,60 +776,376 @@ async function craftPickaxe(pickaxeName) {
   } catch { return false }
 }
 
-// =====================
-//   MINERÍA
-// =====================
-async function shaftMiningLoop() {
-  const optimalY = OPTIMAL_Y[miningTarget] ?? -58
-  const cx = Math.floor(mineLocation.x), cz = Math.floor(mineLocation.z)
-  const startY = currentMineY ?? mineLocation.y
-  await safeGoto(cx, startY, cz, 4)
-  if (!miningActive) return
-  await digStaircaseDown(cx, cz, optimalY)
-  if (miningActive) { miningActive = false; currentMineY = null; await depositInChest() }
-}
-
-async function digStaircaseDown(cx, cz, targetY) {
-  const HALF = 4, stepX = cx + HALF - 1, stepZ = cz + HALF - 1
-  while (miningActive && Math.floor(bot.entity.position.y) > targetY) {
-    const currentY = Math.floor(bot.entity.position.y)
-    currentMineY = currentY
-    await mineLayer(cx, cz, currentY, HALF)
-    if (!miningActive) return
-    if (bot.inventory.emptySlotCount() < 4) { await depositInChest(); if (!miningActive) return }
-    await safeGoto(stepX, currentY, stepZ, 1)
-    if (!miningActive) return
-    const step1 = bot.blockAt(new Vec3(stepX, currentY - 1, stepZ))
-    const step2 = bot.blockAt(new Vec3(stepX, currentY - 2, stepZ))
-    if (step1?.diggable && !step1.name.includes('lava')) await safeDig(step1)
-    if (step2?.diggable && !step2.name.includes('lava')) await safeDig(step2)
-    await safeGoto(stepX, currentY - 1, stepZ, 1)
-  }
-}
-
-async function mineLayer(cx, cz, layerY, half) {
-  const minX = cx - half, maxX = cx + half - 1, minZ = cz - half, maxZ = cz + half - 1
-  const mineable = new Set(['stone', 'deepslate', 'tuff', 'andesite', 'diorite', 'granite', 'gravel', 'dirt', 'sand', 'sandstone',
-    'coal_ore', 'deepslate_coal_ore', 'iron_ore', 'deepslate_iron_ore', 'gold_ore', 'deepslate_gold_ore',
-    'diamond_ore', 'deepslate_diamond_ore', 'emerald_ore', 'deepslate_emerald_ore', 'lapis_ore',
-    'deepslate_lapis_ore', 'redstone_ore', 'deepslate_redstone_ore', 'copper_ore', 'deepslate_copper_ore'])
-
-  for (let dz = 0; dz <= half * 2 - 1; dz++) {
-    const zPos = minZ + dz
-    const xRange = Array.from({ length: half * 2 }, (_, i) => minX + i)
-    const xRow = dz % 2 === 0 ? xRange : [...xRange].reverse()
-    for (const xPos of xRow) {
-      if (!miningActive) return
-      if (bot.inventory.emptySlotCount() < 4) { await depositInChest(); await bot.pathfinder.goto(new goals.GoalNear(xPos, layerY, zPos, 2)) }
-      await bot.pathfinder.goto(new goals.GoalNear(xPos, layerY, zPos, 1))
-      for (const dy of [0, 1]) {
-        const block = bot.blockAt(new Vec3(xPos, layerY + dy, zPos))
-        if (!block || block.name === 'air') continue
-        const shouldMine = block.name === miningTarget || mineable.has(block.name) || block.diggable
-        if (shouldMine && !hasLavaNearby(block.position)) await safeDig(block)
+async function tryCraftPickaxe(pickaxeName) {
+  const recipe = PICKAXE_CRAFT[pickaxeName]
+  if (!recipe) return false
+  
+  // Verificar/obtener materiales
+  for (const [material, amount] of Object.entries(recipe)) {
+    if (material === 'sticks') continue
+    
+    const current = bot.inventory.items()
+      .filter(i => i.name === material)
+      .reduce((sum, i) => sum + i.count, 0)
+    
+    if (current < amount) {
+      // Intentar obtener del cofre o minar
+      if (chestLocation) {
+        const needed = amount - current
+        if (await getItemFromChest(material, needed)) {
+          sendPrivateMessage(`📦 Tomé ${needed}x ${material} del cofre`)
+          continue
+        }
+      }
+      
+      // Si es cobblestone y no tenemos, minarlo
+      if (material === 'cobblestone') {
+        sendPrivateMessage(`⛏️ Minando ${amount - current}x cobblestone...`)
+        await mineCobblestone(amount - current)
+      } else if (material === 'iron_ingot') {
+        sendPrivateMessage(`⚠️ Necesito ${amount - current}x iron_ingot. Por favor, pon hierro en el cofre o dame por chat.`)
+        return false
+      } else if (material === 'diamond') {
+        sendPrivateMessage(`⚠️ Necesito ${amount - current}x diamond. No puedo minar diamantes sin pico de hierro.`)
+        return false
+      } else {
+        return false
       }
     }
   }
+  
+  // Verificar sticks
+  const sticks = bot.inventory.items()
+    .filter(i => i.name === 'stick')
+    .reduce((sum, i) => sum + i.count, 0)
+  
+  if (sticks < recipe.sticks) {
+    // Craftear sticks de madera
+    if (await ensureAxe()) {
+      await getWoodForSticks(recipe.sticks - sticks)
+    } else {
+      return false
+    }
+  }
+  
+  // Craftear el pico
+  try {
+    await safeGoto(craftingTableLocation.x, craftingTableLocation.y, craftingTableLocation.z, 2)
+    const table = bot.blockAt(new Vec3(craftingTableLocation.x, craftingTableLocation.y, craftingTableLocation.z))
+    const recipes = bot.recipesFor(mcData.itemsByName[pickaxeName].id, null, 1, table)
+    if (!recipes.length) return false
+    await bot.craft(recipes[0], 1, table)
+    return true
+  } catch (err) {
+    console.error('Error crafting pickaxe:', err)
+    return false
+  }
+}
+
+async function mineCobblestone(amount) {
+  let mined = 0
+  const startPos = bot.entity.position
+  
+  while (mined < amount && miningActive) {
+    const stone = bot.findBlock({
+      matching: b => b && (b.name === 'stone' || b.name === 'cobblestone'),
+      maxDistance: 32
+    })
+    if (!stone) break
+    
+    await safeGoto(stone.position.x, stone.position.y, stone.position.z, 1)
+    await safeDig(stone)
+    mined++
+    await bot.waitForTicks(5)
+  }
+  
+  sendPrivateMessage(`⛏️ Miné ${mined} cobblestone`)
+}
+
+async function getWoodForSticks(sticksNeeded) {
+  const planksNeeded = Math.ceil(sticksNeeded / 4) // 4 sticks por 2 planks = 2 sticks per plank
+  
+  sendPrivateMessage(`🪓 Necesito ${planksNeeded} planks para hacer ${sticksNeeded} sticks`)
+  
+  // Buscar árbol cerca
+  const tree = findCompleteTree(20)
+  if (!tree) {
+    sendPrivateMessage('❌ No encuentro árboles cerca para hacer sticks')
+    return false
+  }
+  
+  await cutTree(tree)
+  
+  // Convertir logs a planks
+  const logs = bot.inventory.items().filter(i => WOOD_BLOCKS.has(i.name))
+  if (logs.length > 0) {
+    await craftPlanks(logs[0].name.replace('_log', '_planks'))
+  }
+  
+  return true
+}
+
+async function craftPlanks(planksType) {
+  try {
+    await safeGoto(craftingTableLocation.x, craftingTableLocation.y, craftingTableLocation.z, 2)
+    const table = bot.blockAt(new Vec3(craftingTableLocation.x, craftingTableLocation.y, craftingTableLocation.z))
+    const recipes = bot.recipesFor(mcData.itemsByName[planksType].id, null, null, table)
+    if (recipes.length) {
+      await bot.craft(recipes[0], null, table)
+      sendPrivateMessage(`🪵 Crafteadas ${planksType}`)
+    }
+  } catch (err) {
+    console.error('Error crafting planks:', err)
+  }
+}
+
+// =====================
+//   MINERÍA DE CHUNK COMPLETO CON ESCALERA
+// =====================
+async function chunkMiningLoop() {
+  const optimalY = OPTIMAL_Y[miningTarget] ?? -58
+  
+  if (!await ensurePickaxe(miningTarget)) {
+    miningActive = false
+    clearMiningProgress()
+    return
+  }
+  
+  const chunkX = Math.floor(mineLocation.x / 16)
+  const chunkZ = Math.floor(mineLocation.z / 16)
+  
+  const startX = chunkX * 16 + 8
+  const startZ = chunkZ * 16 + 8
+  const startY = mineLocation.y
+  
+  // Guardar información del chunk
+  currentChunkMining = {
+    startY: optimalY,
+    currentY: optimalY,
+    chunkX: chunkX,
+    chunkZ: chunkZ,
+    startX: startX,
+    startZ: startZ
+  }
+  saveMiningProgress()
+  
+  await safeGoto(startX, startY, startZ, 8)
+  if (!miningActive) return
+  
+  sendPrivateMessage(`📉 Bajando en escalera hasta Y=${optimalY}...`)
+  await digStaircaseDownToTarget(startX, startZ, optimalY)
+  
+  if (!miningActive) return
+  
+  sendPrivateMessage(`⛏️ Minando chunk completo desde Y=${optimalY} hasta superficie...`)
+  await mineFullChunkLayers()
+  
+  if (miningActive) {
+    miningActive = false
+    currentMineY = null
+    currentChunkMining = null
+    clearMiningProgress()
+    await depositInChest()
+    sendPrivateMessage(`✅ Chunk minado completamente!`)
+  }
+}
+
+async function resumeMining() {
+  if (!loadMiningProgress()) return false
+  
+  sendPrivateMessage(`🔄 Retomando minería de ${miningProgress.target} en Y=${miningProgress.currentY}`)
+  
+  miningTarget = miningProgress.target
+  miningActive = true
+  currentMineY = miningProgress.currentY
+  
+  currentChunkMining = {
+    startY: miningProgress.layer || OPTIMAL_Y[miningProgress.target] || -58,
+    currentY: miningProgress.layer || miningProgress.currentY,
+    chunkX: miningProgress.chunkX,
+    chunkZ: miningProgress.chunkZ,
+    startX: miningProgress.startX,
+    startZ: miningProgress.startZ
+  }
+  
+  // Posicionarse en la última posición guardada
+  if (miningProgress.startX && miningProgress.startZ) {
+    await safeGoto(miningProgress.startX, miningProgress.currentY, miningProgress.startZ, 3)
+  }
+  
+  // Continuar desde donde se quedó
+  if (currentChunkMining.currentY && currentChunkMining.currentY <= 320) {
+    await mineFullChunkLayers()
+  } else {
+    await chunkMiningLoop()
+  }
+  
+  return true
+}
+
+async function getIronFromChest() {
+  if (!chestLocation) return false
+  try {
+    await safeGoto(chestLocation.x, chestLocation.y, chestLocation.z, 2)
+    const chest = await bot.openChest(bot.blockAt(new Vec3(chestLocation.x, chestLocation.y, chestLocation.z)))
+    const iron = chest.containerItems().find(i => i.name === 'iron_ingot')
+    if (iron && iron.count >= 3) {
+      await chest.withdraw(iron.type, null, 3)
+      chest.close()
+      return true
+    }
+    chest.close()
+    return false
+  } catch {
+    return false
+  }
+}
+
+async function digStaircaseDownToTarget(startX, startZ, targetY) {
+  // Escalera en espiral 2x2 transitable
+  const spiralPattern = [
+    [0, 0], [1, 0], [1, 1], [0, 1],  // vuelta completa
+    [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]  // siguiente vuelta
+  ]
+  
+  let step = 0
+  let currentX = startX
+  let currentZ = startZ
+  
+  while (miningActive && Math.floor(bot.entity.position.y) > targetY) {
+    const currentY = Math.floor(bot.entity.position.y)
+    currentMineY = currentY
+    saveMiningProgress()  // Guardar progreso
+    
+    // Obtener siguiente paso de la espiral
+    const [dx, dz] = spiralPattern[step % spiralPattern.length]
+    const targetX = currentX + dx
+    const targetZ = currentZ + dz
+    
+    // Posición del bloque a minar para bajar
+    const downBlock = bot.blockAt(new Vec3(targetX, currentY - 1, targetZ))
+    if (downBlock?.diggable && !downBlock.name.includes('lava')) {
+      await safeGoto(targetX, currentY, targetZ, 1)
+      await safeDig(downBlock)
+    }
+    
+    // Mover a la posición
+    await safeGoto(targetX, currentY - 1, targetZ, 1)
+    
+    currentX = targetX
+    currentZ = targetZ
+    step++
+    
+    // Cada 5 pasos, guardar posición y verificar inventario
+    if (step % 5 === 0) {
+      saveMiningProgress()
+      if (bot.inventory.emptySlotCount() < 9) {
+        await depositInChest()
+        if (!miningActive) return
+      }
+    }
+    
+    await bot.waitForTicks(5)
+  }
+  
+  saveMiningProgress()
+}
+
+async function mineStaircaseLayer(cx, cz, layerY) {
+  const radius = 4  // Radio de minería alrededor de la escalera
+  const minX = cx - radius
+  const maxX = cx + radius
+  const minZ = cz - radius
+  const maxZ = cz + radius
+  
+  const mineable = new Set(['stone', 'deepslate', 'tuff', 'andesite', 'diorite', 'granite', 
+    'gravel', 'dirt', 'sand', 'sandstone', 'coal_ore', 'deepslate_coal_ore', 
+    'iron_ore', 'deepslate_iron_ore', 'gold_ore', 'deepslate_gold_ore',
+    'diamond_ore', 'deepslate_diamond_ore', 'emerald_ore', 'deepslate_emerald_ore', 
+    'lapis_ore', 'deepslate_lapis_ore', 'redstone_ore', 'deepslate_redstone_ore', 
+    'copper_ore', 'deepslate_copper_ore'])
+  
+  for (let x = minX; x <= maxX; x++) {
+    for (let z = minZ; z <= maxZ; z++) {
+      if (!miningActive) return
+      
+      const block = bot.blockAt(new Vec3(x, layerY, z))
+      if (!block || block.name === 'air') continue
+      
+      const shouldMine = block.name === miningTarget || mineable.has(block.name) || block.diggable
+      if (shouldMine && !hasLavaNearby(block.position)) {
+        await safeGoto(block.position.x, block.position.y, block.position.z, 1)
+        await safeDig(block)
+      }
+    }
+  }
+}
+
+async function mineFullChunkLayers() {
+  const chunkSize = 16
+  const startX = currentChunkMining.chunkX * chunkSize
+  const startZ = currentChunkMining.chunkZ * chunkSize
+  
+  // Empezar desde la capa guardada o desde la óptima
+  let startLayer = currentChunkMining.currentY || currentChunkMining.startY
+  
+  for (let y = startLayer; y <= 320 && miningActive; y++) {
+    if (!miningActive) break
+    
+    currentChunkMining.currentY = y
+    saveMiningProgress()  // Guardar después de cada capa
+    
+    sendPrivateMessage(`🪨 Minando capa Y=${y}`)
+    
+    await mineChunkLayer(startX, startZ, y, chunkSize)
+    
+    if (y % 10 === 0 && bot.inventory.emptySlotCount() < 9) {
+      await depositInChest()
+      if (!miningActive) return
+    }
+  }
+  
+  // Limpiar progreso al terminar
+  clearMiningProgress()
+}
+
+async function mineChunkLayer(startX, startZ, layerY, chunkSize) {
+  const mineable = new Set(['stone', 'deepslate', 'tuff', 'andesite', 'diorite', 'granite', 
+    'gravel', 'dirt', 'sand', 'sandstone', 'coal_ore', 'deepslate_coal_ore', 
+    'iron_ore', 'deepslate_iron_ore', 'gold_ore', 'deepslate_gold_ore',
+    'diamond_ore', 'deepslate_diamond_ore', 'emerald_ore', 'deepslate_emerald_ore', 
+    'lapis_ore', 'deepslate_lapis_ore', 'redstone_ore', 'deepslate_redstone_ore', 
+    'copper_ore', 'deepslate_copper_ore'])
+  
+  // Patrón de serpiente para optimizar movimiento
+  for (let offsetZ = 0; offsetZ < chunkSize && miningActive; offsetZ++) {
+    const z = startZ + offsetZ
+    // Alterna dirección X en cada fila para eficiencia
+    const xStart = startX
+    const xEnd = startX + chunkSize - 1
+    const xStep = offsetZ % 2 === 0 ? 1 : -1
+    
+    for (let x = xStart; (xStep > 0 ? x <= xEnd : x >= xEnd); x += xStep) {
+      if (!miningActive) return
+      
+      const block = bot.blockAt(new Vec3(x, layerY, z))
+      if (!block || block.name === 'air') continue
+      
+      const shouldMine = block.name === miningTarget || mineable.has(block.name) || block.diggable
+      if (shouldMine && !hasLavaNearby(block.position)) {
+        await safeGoto(block.position.x, block.position.y, block.position.z, 1)
+        await safeDig(block)
+        
+        // Pausa breve para no sobrecargar
+        await bot.waitForTicks(1)
+      }
+    }
+  }
+}
+
+// Mantener la función original por compatibilidad
+async function shaftMiningLoop() {
+  await chunkMiningLoop()
 }
 
 async function nearbyMiningLoop(yTolerance = 10) {
@@ -604,7 +1178,7 @@ async function harvestWheat() {
     const farmland = bot.blockAt(wheat.position.offset(0, -1, 0))
     if (seed && farmland?.name === 'farmland') await bot.placeBlock(farmland, new Vec3(0, 1, 0))
   }
-  bot.chat(`Cosechadas ${harvested} plantas`)
+  sendPrivateMessage(`Cosechadas ${harvested} plantas`)
 }
 
 async function makeBread() {
@@ -629,22 +1203,79 @@ function findCompleteTree(maxDistance = 20) {
 }
 
 async function ensureAxe() {
+  // Verificar si ya tenemos hacha equipada
   const equipped = bot.inventory.slots[36]
   if (equipped && equipped.name.includes('axe')) return true
+  
+  // Buscar en inventario
   const axe = bot.inventory.items().find(i => i.name.includes('axe'))
-  if (axe) { await bot.equip(axe, 'hand'); return true }
+  if (axe) {
+    await bot.equip(axe, 'hand')
+    return true
+  }
+  
+  // Buscar en cofre
   if (chestLocation) {
     for (const type of AXE_PRIORITY) {
-      if (await getItemFromChest(type, 1)) { await bot.equip(bot.inventory.items().find(i => i.name === type), 'hand'); return true }
+      if (await getItemFromChest(type, 1)) {
+        const newAxe = bot.inventory.items().find(i => i.name === type)
+        if (newAxe) {
+          await bot.equip(newAxe, 'hand')
+          sendPrivateMessage(`🪓 Saqué ${type} del cofre`)
+          return true
+        }
+      }
     }
   }
+  
+  // Intentar craftear hacha de piedra (la más básica útil)
+  sendPrivateMessage('🔨 Intentando craftear stone_axe...')
+  
+  // Verificar cobblestone
+  const cobblestone = bot.inventory.items()
+    .filter(i => i.name === 'cobblestone')
+    .reduce((sum, i) => sum + i.count, 0)
+  
+  if (cobblestone < 3) {
+    sendPrivateMessage('⛏️ Necesito 3 cobblestone. Minando...')
+    await mineCobblestone(3 - cobblestone)
+  }
+  
+  // Verificar sticks
+  const sticks = bot.inventory.items()
+    .filter(i => i.name === 'stick')
+    .reduce((sum, i) => sum + i.count, 0)
+  
+  if (sticks < 2) {
+    await getWoodForSticks(2 - sticks)
+  }
+  
+  // Craftear hacha
+  try {
+    await safeGoto(craftingTableLocation.x, craftingTableLocation.y, craftingTableLocation.z, 2)
+    const table = bot.blockAt(new Vec3(craftingTableLocation.x, craftingTableLocation.y, craftingTableLocation.z))
+    const recipes = bot.recipesFor(mcData.itemsByName['stone_axe'].id, null, 1, table)
+    if (recipes.length) {
+      await bot.craft(recipes[0], 1, table)
+      const newAxe = bot.inventory.items().find(i => i.name === 'stone_axe')
+      if (newAxe) {
+        await bot.equip(newAxe, 'hand')
+        sendPrivateMessage('✅ Crafteada stone_axe')
+        return true
+      }
+    }
+  } catch (err) {
+    console.error('Error crafting axe:', err)
+  }
+  
+  sendPrivateMessage('❌ No puedo obtener un hacha')
   return false
 }
 
 async function cutTree(treeBlocks) {
   if (!explorationActive && !woodcuttingActive) return
   woodcuttingActive = true
-  if (!await ensureAxe()) { bot.chat('❌ No tengo hacha'); woodcuttingActive = false; return }
+  if (!await ensureAxe()) { sendPrivateMessage('❌ No tengo hacha'); woodcuttingActive = false; return }
   treeBlocks.sort((a, b) => a.position.y - b.position.y)
   for (const block of treeBlocks) {
     if (!explorationActive && !woodcuttingActive) break
@@ -668,7 +1299,7 @@ async function exploreChunks() {
   if (exploredChunks.has(key)) {
     const next = getNextUnexploredChunk(cx, cz)
     if (next) await moveToChunk(next.x, next.z)
-    else { exploredChunks.clear(); bot.chat('🏁 Reiniciando exploración') }
+    else { exploredChunks.clear(); sendPrivateMessage('🏁 Reiniciando exploración') }
     return
   }
   exploredChunks.add(key)
@@ -778,15 +1409,65 @@ function stopShield() { if (hasShield()) bot.deactivateItem() }
 async function equipBestWeapon() {
   const equipped = bot.inventory.slots[36]
   if (equipped && WEAPON_PRIORITY.includes(equipped.name)) return equipped.name
+  
+  // Buscar en inventario
   for (const name of WEAPON_PRIORITY) {
     const weapon = bot.inventory.items().find(i => i.name === name)
-    if (weapon) { await bot.equip(weapon, 'hand'); return name }
-  }
-  if (chestLocation) {
-    for (const name of WEAPON_PRIORITY) {
-      if (await getItemFromChest(name, 1)) { const w = bot.inventory.items().find(i => i.name === name); if (w) { await bot.equip(w, 'hand'); return name } }
+    if (weapon) {
+      await bot.equip(weapon, 'hand')
+      return name
     }
   }
+  
+  // Buscar en cofre
+  if (chestLocation) {
+    for (const name of WEAPON_PRIORITY) {
+      if (await getItemFromChest(name, 1)) {
+        const w = bot.inventory.items().find(i => i.name === name)
+        if (w) {
+          await bot.equip(w, 'hand')
+          return name
+        }
+      }
+    }
+  }
+  
+  // Intentar craftear espada de piedra
+  sendPrivateMessage('🔨 Intentando craftear stone_sword...')
+  
+  const cobblestone = bot.inventory.items()
+    .filter(i => i.name === 'cobblestone')
+    .reduce((sum, i) => sum + i.count, 0)
+  
+  if (cobblestone < 2) {
+    await mineCobblestone(2 - cobblestone)
+  }
+  
+  const sticks = bot.inventory.items()
+    .filter(i => i.name === 'stick')
+    .reduce((sum, i) => sum + i.count, 0)
+  
+  if (sticks < 1) {
+    await getWoodForSticks(1)
+  }
+  
+  try {
+    await safeGoto(craftingTableLocation.x, craftingTableLocation.y, craftingTableLocation.z, 2)
+    const table = bot.blockAt(new Vec3(craftingTableLocation.x, craftingTableLocation.y, craftingTableLocation.z))
+    const recipes = bot.recipesFor(mcData.itemsByName['stone_sword'].id, null, 1, table)
+    if (recipes.length) {
+      await bot.craft(recipes[0], 1, table)
+      const sword = bot.inventory.items().find(i => i.name === 'stone_sword')
+      if (sword) {
+        await bot.equip(sword, 'hand')
+        sendPrivateMessage('✅ Crafteada stone_sword')
+        return 'stone_sword'
+      }
+    }
+  } catch (err) {
+    console.error('Error crafting sword:', err)
+  }
+  
   return null
 }
 
@@ -810,7 +1491,7 @@ async function retreatFromMob(mob) {
 async function fightMob(mob) {
   if (!mob?.isValid) return false
   const threat = evaluateThreat(mob)
-  if (!await equipBestWeapon()) { bot.chat('No tengo arma'); return false }
+  if (!await equipBestWeapon()) { sendPrivateMessage('No tengo arma'); return false }
   currentTarget = mob
   currentCombatState = CombatState.APPROACHING
   switch (threat.strategy) {
@@ -976,7 +1657,7 @@ async function sleepInBed() {
   const bed = bot.blockAt(new Vec3(bedLocation.x, bedLocation.y, bedLocation.z))
   if (!bed?.name.includes('bed')) return
   await bot.sleep(bed)
-  bot.once('wake', () => bot.chat('Buenos días! ☀️'))
+  bot.once('wake', () => sendPrivateMessage('Buenos días! ☀️'))
 }
 
 // =====================
@@ -993,26 +1674,85 @@ function startFollowing(username) {
 }
 
 // =====================
+//   SEGUIR JUGADOR (AUTÓNOMO)
+// =====================
+let autoFollowEnabled = true  // NUEVO: por defecto sigue al master
+let currentFollowTarget = MASTER
+
+function startFollowing(username) {
+  if (followInterval) clearInterval(followInterval)
+  followInterval = setInterval(() => {
+    if (!followingPlayer) { 
+      // Si autoFollowEnabled está activo, seguimos al master aunque no haya comando
+      if (autoFollowEnabled && !miningActive && !huntingActive && !explorationActive) {
+        const target = bot.players[MASTER]?.entity
+        if (target && target.position.distanceTo(bot.entity.position) > 3) {
+          safeSetGoal(new goals.GoalNear(target.position.x, target.position.y, target.position.z, 3), true)
+        }
+      }
+      return 
+    }
+    if (miningActive || huntingActive || pathfindingLock) return
+    const target = bot.players[username]?.entity
+    if (target) safeSetGoal(new goals.GoalNear(target.position.x, target.position.y, target.position.z, 3), true)
+  }, 1000)
+}
+
+// Función para enviar mensaje privado al master
+function sendPrivateMessage(message) {
+  if (MASTER && bot.players[MASTER]) {
+    bot.chat(`/tell ${MASTER} ${message}`)
+  } else {
+    console.log(`[No se puede enviar a ${MASTER}]: ${message}`)
+  }
+}
+
+// Sobrescribir bot.chat para que use mensajes privados cuando sea apropiado
+// Pero mantenemos la función original para comandos internos
+const originalChat = bot.chat
+bot.chat = function(message) {
+  if (message.startsWith('/')) {
+    originalChat.call(bot, message)
+  } else {
+    sendPrivateMessage(message)
+  }
+}
+
+// =====================
 //   EVENTOS DEL BOT
 // =====================
 bot.on('spawn', () => {
   console.log('✅ Bot conectado')
+  sendPrivateMessage('✅ Bot conectado y listo!')
+  
   const movements = new Movements(bot)
   movements.allowSprinting = true
   bot.pathfinder.setMovements(movements)
   loadState()
   startDodgeSystem()
+  
   setInterval(() => { if (!miningActive && !huntingActive && !followingPlayer && !depositState.active) pickupNearbyItems() }, 30000)
   setInterval(checkInventoryAndDeposit, 10000)
-  setTimeout(() => {
+  
+  // Verificar si hay minería pendiente
+  setTimeout(async () => {
+    if (loadMiningProgress() && miningProgress.active) {
+      sendPrivateMessage(`📌 Tengo una minería pendiente de ${miningProgress.target}. Usa "retomar" si quieres continuar.`)
+    }
+    
     const target = bot.players[MASTER]?.entity
-    if (target) bot.pathfinder.setGoal(new goals.GoalNear(target.position.x, target.position.y, target.position.z, 1))
-    else bot.chat('No te veo')
+    if (target) {
+      followingPlayer = true
+      startFollowing(MASTER)
+      sendPrivateMessage(`👋 Siguiendo a ${MASTER} automáticamente. Usa "basta" o "espera" para detenerme.`)
+    } else {
+      sendPrivateMessage(`⚠️ No encuentro a ${MASTER}. Esperando...`)
+    }
   }, 2000)
 })
 
 bot.on('health', async () => {
-  if (bot.health <= 4) bot.chat(`⚠️ Poca vida: ${Math.round(bot.health)}/20`)
+  if (bot.health <= 4) sendPrivateMessage(`⚠️ Poca vida: ${Math.round(bot.health)}/20`)
   if (bot.food <= 14 && !isEating) {
     isEating = true
     try { await eatFood() }
@@ -1028,157 +1768,399 @@ function checkInventoryAndDeposit() {
   if ((used > 50 && bot.inventory.emptySlotCount() < 12) || wood > 64) {
     const wasMining = miningActive
     if (wasMining) miningActive = false
-    depositInChest().then(() => { if (wasMining && miningTarget && !huntingActive && !followingPlayer) { miningActive = true; shaftMiningLoop() } })
+    depositInChest().then(() => { if (wasMining && miningTarget && !huntingActive && !followingPlayer) { miningActive = true; chunkMiningLoop() } })
   }
 }
 
 // =====================
+//   COMANDOS POR MENSAJE PRIVADO
+// =====================
+// Escuchar mensajes privados (whisper)
+bot.on('whisper', async (username, message) => {
+  if (username !== MASTER) {
+    // Responder solo al master, ignorar otros whispers
+    bot.chat(`/tell ${username} Solo respondo a ${MASTER}.`)
+    return
+  }
+  
+  console.log(`[Whisper] ${username}: ${message}`)
+  await handleCommand(message)
+})
+
+// =====================
 //   COMANDOS DE CHAT
 // =====================
+// También mantener compatibilidad con chat general por si acaso, pero priorizar whisper
 bot.on('chat', async (username, message) => {
   if (username === bot.username) return
+  if (username !== MASTER) return // Ignorar chat general de no-master
+  
   console.log(`[Chat] ${username}: ${message}`)
-  if (username !== MASTER) { bot.chat(`Solo obedezco a ${MASTER}.`); return }
+  await handleCommand(message)
+})
 
+// Manejador centralizado de comandos
+async function handleCommand(message) {
+  const msg = message.toLowerCase()
+  
   // ===== AYUDA =====
-  if (message === 'aiuda') {
-    bot.chat('--DATA-- dondetas | status | data | equipment | debug')
-    bot.chat('--SETUP-- chest x y z | table x y z | mine x y z | farm x y z | bed x y z')
-    bot.chat('--MOVE-- showAt x y z | follow [player] | stop follow')
-    bot.chat('--MINE-- bring <block> | cerca <block> [y] | stop')
-    bot.chat('--FARM-- harvest | bake | harvest and bake')
-    bot.chat('--OTHER-- eat | armor | grab <item> | equip <item> | drop all | drop <item> | hold <item> | hunt | stop hunt | sleep')
-    bot.chat('--EXPLORE-- explore | stop explore | wood')
-    bot.chat('--DODGE-- dodge on | dodge off | dodge config | hunt config')
+  if (msg === 'aiuda' || msg === 'help') {
+    sendPrivateMessage('📋 COMANDOS:')
+    sendPrivateMessage('📍 info: dondetas | salud | data | equipo | debug')
+    sendPrivateMessage('🏠 setup: cofre x y z | mesa x y z | mina x y z | granja x y z | cama x y z')
+    sendPrivateMessage('🚶 movimiento: ir a x y z | seguime | basta | espera')
+    sendPrivateMessage('⛏️ mineria: traeme <block> | cerca <block> [y] | chunk <block>')
+    sendPrivateMessage('🌾 comida: cosecha | cocina | cosecha y cocina')
+    sendPrivateMessage('🗺️ explorar: explore | stop explore | wood')
+    sendPrivateMessage('🛡️ combate: caza | no caces | esquiva | no esquives')
+    sendPrivateMessage('🔧 otros: come | vestite | agarra <item> | equipa <item> | dropea todo | sleep')
+    return
+  }
+
+  // ===== CONTROL DE SEGUIMIENTO AUTÓNOMO =====
+  if (msg === 'basta' || msg === 'stop') {
+    // Guardar progreso antes de parar
+    if (miningActive) {
+        saveMiningProgress()
+        sendPrivateMessage('💾 Progreso de minería guardado. Usa "retomar" para continuar.')
+    } else {
+        clearMiningProgress()
+    }
+    
+    miningActive = false
+    huntingActive = false
+    followingPlayer = false
+    explorationActive = false
+    woodcuttingActive = false
+    autoFollowEnabled = false
+    depositState.active = false
+    
+    if (followInterval) clearInterval(followInterval)
+    
+    if (bot.pathfinder?.goal) {
+        bot.pathfinder.setGoal(null)
+    }
+    
+    pathfindingLock = false
+    sendPrivateMessage('🛑 Detenido. Usa "retomar" si quieres continuar minando.')
+    return
+  }
+
+  if (msg === 'retomar') {
+    if (miningActive) {
+        sendPrivateMessage('⚠️ Ya estoy minando. Usa "basta" primero si quieres reiniciar.')
+        return
+    }
+    
+    if (await resumeMining()) {
+        sendPrivateMessage('▶️ Retomando minería...')
+    } else {
+        sendPrivateMessage('❌ No hay progreso de minería guardado. Usa "traeme <bloque>" para empezar.')
+    }
+    return
+}
+  
+  if (msg === 'espera') {
+    followingPlayer = false
+    autoFollowEnabled = false
+    if (followInterval) clearInterval(followInterval)
+    bot.pathfinder.setGoal(null)
+    sendPrivateMessage('⏸️ En pausa. Usa "seguime" para que te siga de nuevo.')
+    return
+  }
+  
+  if (msg === 'seguime') {
+    followingPlayer = true
+    autoFollowEnabled = true
+    if (followInterval) clearInterval(followInterval)
+    startFollowing(MASTER)
+    sendPrivateMessage(`🚶 Siguiendo a ${MASTER}...`)
+    return
+  }
+  
+  if (msg === 'auto' || msg === 'autonomo') {
+    autoFollowEnabled = !autoFollowEnabled
+    sendPrivateMessage(autoFollowEnabled ? '✅ Modo autónomo ACTIVADO' : '❌ Modo autónomo DESACTIVADO')
+    if (autoFollowEnabled && !followingPlayer && !miningActive && !huntingActive && !explorationActive) {
+      followingPlayer = true
+      startFollowing(MASTER)
+      sendPrivateMessage(`🚶 Siguiendo a ${MASTER}...`)
+    }
     return
   }
 
   // ===== EVASIÓN =====
-  if (message === 'dodge on') { DODGE_CONFIG.enabled = true; startDodgeSystem(); bot.chat('✅ Evasión activada'); return }
-  if (message === 'dodge off') { DODGE_CONFIG.enabled = false; stopDodgeSystem(); bot.chat('⚠️ Evasión desactivada'); return }
-  if (message === 'dodge config') { bot.chat(`Evasión: ${DODGE_CONFIG.enabled ? 'ON' : 'OFF'} | Radio: ${DODGE_CONFIG.detectionRadius}m | Distancia: ${DODGE_CONFIG.safeDistance}m`); return }
+  if (msg === 'esquiva') { DODGE_CONFIG.enabled = true; startDodgeSystem(); sendPrivateMessage('✅ Evasión activada'); return }
+  if (msg === 'no esquives') { DODGE_CONFIG.enabled = false; stopDodgeSystem(); sendPrivateMessage('⚠️ Evasión desactivada'); return }
+  if (msg === 'setup esquive') { sendPrivateMessage(`Evasión: ${DODGE_CONFIG.enabled ? 'ON' : 'OFF'} | Radio: ${DODGE_CONFIG.detectionRadius}m | Distancia: ${DODGE_CONFIG.safeDistance}m`); return }
 
   // ===== INFO =====
-  if (message === 'debug') { bot.chat(`isEating:${isEating} | food:${bot.food} | health:${bot.health} | isDodging:${isDodging}`); return }
-  if (message === 'dondetas') { const p = bot.entity.position; bot.chat(`X:${Math.floor(p.x)} Y:${Math.floor(p.y)} Z:${Math.floor(p.z)}`); return }
-  if (message === 'status') { bot.chat(`Vida:${Math.round(bot.health)}/20 | Hambre:${Math.round(bot.food)}/20`); return }
-  if (message === 'data') { const f = l => l ? `X:${l.x} Y:${l.y} Z:${l.z}` : 'no'; bot.chat(`Cofre:${f(chestLocation)} | Mesa:${f(craftingTableLocation)} | Mina:${f(mineLocation)} | Granja:${f(farmLocation)} | Cama:${f(bedLocation)}`); return }
-  if (message === 'equipment') { reportPickaxes(); return }
-  if (message === 'checkarmor') { bot.chat(`Head:${bot.inventory.slots[5]?.name || 'vacío'} | Chest:${bot.inventory.slots[6]?.name || 'vacío'} | Legs:${bot.inventory.slots[7]?.name || 'vacío'} | Feet:${bot.inventory.slots[8]?.name || 'vacío'}`); return }
+  if (msg === 'debug') { sendPrivateMessage(`isEating:${isEating} | food:${bot.food} | health:${bot.health} | isDodging:${isDodging} | autoFollow:${autoFollowEnabled}`); return }
+  if (msg === 'dondetas') { const p = bot.entity.position; sendPrivateMessage(`📍 X:${Math.floor(p.x)} Y:${Math.floor(p.y)} Z:${Math.floor(p.z)}`); return }
+  if (msg === 'salud') { sendPrivateMessage(`❤️ Vida:${Math.round(bot.health)}/20 | 🍗 Hambre:${Math.round(bot.food)}/20`); return }
+  if (msg === 'data') { 
+    const f = l => l ? `X:${l.x} Y:${l.y} Z:${l.z}` : 'no'
+    sendPrivateMessage(`📦 Cofre:${f(chestLocation)} | 📐 Mesa:${f(craftingTableLocation)}`)
+    sendPrivateMessage(`⛏️ Mina:${f(mineLocation)} | 🌾 Granja:${f(farmLocation)} | 🛏️ Cama:${f(bedLocation)}`)
+    return 
+  }
+  if (msg === 'equipo') { reportPickaxes(); return }
+  if (msg === 'revisa armadura') { sendPrivateMessage(`🪖 Head:${bot.inventory.slots[5]?.name || 'vacío'} | Chest:${bot.inventory.slots[6]?.name || 'vacío'} | Legs:${bot.inventory.slots[7]?.name || 'vacío'} | Feet:${bot.inventory.slots[8]?.name || 'vacío'}`); return }
 
   // ===== SETUP =====
-  if (message.startsWith('chest ')) { const [x,y,z] = message.split(' ').slice(1).map(Number); if ([x,y,z].some(isNaN)) return; chestLocation = { x, y, z }; saveState(); bot.chat(`Cofre: ${x} ${y} ${z}`); return }
-  if (message.startsWith('table ')) { const [x,y,z] = message.split(' ').slice(1).map(Number); if ([x,y,z].some(isNaN)) return; craftingTableLocation = { x, y, z }; saveState(); bot.chat(`Mesa: ${x} ${y} ${z}`); return }
-  if (message.startsWith('mine ')) { const [x,y,z] = message.split(' ').slice(1).map(Number); if ([x,y,z].some(isNaN)) return; mineLocation = { x, y, z }; currentMineY = null; saveState(); bot.chat(`Mina: ${x} ${y} ${z}`); return }
-  if (message.startsWith('bed ')) { const [x,y,z] = message.split(' ').slice(1).map(Number); if ([x,y,z].some(isNaN)) return; bedLocation = { x, y, z }; saveState(); bot.chat(`Cama: ${x} ${y} ${z}`); return }
-  if (message.startsWith('farm ')) { const [x,y,z] = message.split(' ').slice(1).map(Number); if ([x,y,z].some(isNaN)) return; farmLocation = { x, y, z }; saveState(); bot.chat(`Granja: ${x} ${y} ${z}`); return }
+  if (msg.startsWith('cofre ')) { const [x,y,z] = message.split(' ').slice(1).map(Number); if ([x,y,z].some(isNaN)) return; chestLocation = { x, y, z }; saveState(); sendPrivateMessage(`✅ Cofre guardado en ${x} ${y} ${z}`); return }
+  if (msg.startsWith('mesa ')) { const [x,y,z] = message.split(' ').slice(1).map(Number); if ([x,y,z].some(isNaN)) return; craftingTableLocation = { x, y, z }; saveState(); sendPrivateMessage(`✅ Mesa guardada en ${x} ${y} ${z}`); return }
+  if (msg.startsWith('mina ')) { const [x,y,z] = message.split(' ').slice(1).map(Number); if ([x,y,z].some(isNaN)) return; mineLocation = { x, y, z }; currentMineY = null; saveState(); sendPrivateMessage(`✅ Mina guardada en ${x} ${y} ${z}`); return }
+  if (msg.startsWith('cama ')) { const [x,y,z] = message.split(' ').slice(1).map(Number); if ([x,y,z].some(isNaN)) return; bedLocation = { x, y, z }; saveState(); sendPrivateMessage(`✅ Cama guardada en ${x} ${y} ${z}`); return }
+  if (msg.startsWith('granja ')) { const [x,y,z] = message.split(' ').slice(1).map(Number); if ([x,y,z].some(isNaN)) return; farmLocation = { x, y, z }; saveState(); sendPrivateMessage(`✅ Granja guardada en ${x} ${y} ${z}`); return }
 
   // ===== MOVIMIENTO =====
-  if (message.startsWith('showAt ')) { const [x,y,z] = message.split(' ').slice(1).map(Number); if ([x,y,z].some(isNaN)) return; bot.pathfinder.setGoal(new goals.GoalNear(x, y, z, 2)); return }
-  if (message === 'follow' || message.startsWith('follow ')) {
-    const target = message === 'follow' ? username : message.split(' ')[1]
-    if (!bot.players[target]) { bot.chat(`No veo a ${target}`); return }
-    followingPlayer = true; miningActive = false; huntingActive = false; explorationActive = false
-    if (followInterval) clearInterval(followInterval)
-    startFollowing(target)
-    return
+  if (msg.startsWith('ir a ')) { 
+    const [x,y,z] = message.split(' ').slice(1).map(Number)
+    if ([x,y,z].some(isNaN)) return
+    // Al mover manualmente, desactivamos el auto-follow temporalmente
+    autoFollowEnabled = false
+    followingPlayer = false
+    bot.pathfinder.setGoal(new goals.GoalNear(x, y, z, 2))
+    sendPrivateMessage(`🚶 Yendo a ${x} ${y} ${z}...`)
+    return 
   }
-  if (message === 'stop follow') { followingPlayer = false; if (followInterval) clearInterval(followInterval); bot.pathfinder.setGoal(null); return }
-  if (message === 'stop') { miningActive = false; huntingActive = false; followingPlayer = false; explorationActive = false; woodcuttingActive = false; depositState.active = false; if (followInterval) clearInterval(followInterval); bot.pathfinder.setGoal(null); pathfindingLock = false; return }
-  if (message === 'sleep') { miningActive = false; huntingActive = false; followingPlayer = false; explorationActive = false; if (followInterval) clearInterval(followInterval); bot.pathfinder.setGoal(null); await sleepInBed(); return }
 
   // ===== MINERÍA =====
-  if (message === 'drop all') {
+  if (msg === 'dropea todo') {
     if (!bot.inventory.items().length) return
     if (chestLocation) { depositState.lastInventoryHash = null; await depositInChest() }
     else { for (const i of bot.inventory.items()) await bot.toss(i.type, null, i.count) }
+    sendPrivateMessage('🗑️ Inventario vaciado')
     return
   }
-  if (message.startsWith('drop ') && message !== 'drop all') {
+  if (msg.startsWith('dropea ') && msg !== 'dropea todo') {
     const item = bot.inventory.items().find(i => i.name === message.split(' ').slice(1).join(' '))
-    if (item) await bot.toss(item.type, null, item.count)
+    if (item) { await bot.toss(item.type, null, item.count); sendPrivateMessage(`🗑️ Tiré ${item.name}`) }
     return
   }
-  if (message.startsWith('bring ')) {
-    if (!chestLocation || !craftingTableLocation || !mineLocation) { bot.chat('Faltan registros'); return }
+  
+  if (msg.startsWith('chunk ')) {
     const block = message.split(' ')[1]
-    if (!mcData.blocksByName[block]) return
-    if (!await ensurePickaxe(block)) { bot.chat('No tengo pico'); return }
-    miningTarget = block; miningActive = true
-    shaftMiningLoop()
+    if (!mcData.blocksByName[block]) { 
+        sendPrivateMessage(`❌ Bloque ${block} no existe`)
+        return 
+    }
+    if (!await ensurePickaxe(block)) { 
+        sendPrivateMessage('❌ No tengo pico suficiente')
+        return 
+    }
+    
+    miningActive = false
+    huntingActive = false
+    followingPlayer = false
+    explorationActive = false
+    autoFollowEnabled = false
+    if (followInterval) clearInterval(followInterval)
+    
+    if (bot.pathfinder && bot.pathfinder.goal) {
+        bot.pathfinder.setGoal(null)
+        await new Promise(resolve => setTimeout(resolve, 100))
+    }
+    
+    let waited = 0
+    while (pathfindingLock && waited < 20) {
+        await new Promise(resolve => setTimeout(resolve, 100))
+        waited++
+    }
+    pathfindingLock = false
+    
+    miningTarget = block
+    miningActive = true
+    sendPrivateMessage(`⛏️ Minando chunk completo para ${block}...`)
+    
+    setTimeout(() => {
+        if (miningActive && miningTarget) chunkMiningLoop()
+    }, 200)
     return
   }
-  if (message.startsWith('cerca ')) {
+  
+  if (msg.startsWith('traeme ')) {
+      if (!chestLocation || !craftingTableLocation || !mineLocation) { 
+          sendPrivateMessage('❌ Faltan registros (cofre/mesa/mina)')
+          return 
+      }
+      const block = message.split(' ')[1]
+      if (!mcData.blocksByName[block]) { 
+          sendPrivateMessage(`❌ Bloque ${block} no existe`)
+          return 
+      }
+      
+      // Limpiar estado anterior
+      miningActive = false
+      huntingActive = false
+      followingPlayer = false
+      explorationActive = false
+      autoFollowEnabled = false
+      if (followInterval) clearInterval(followInterval)
+      
+      // Cancelar pathfinding
+      if (bot.pathfinder?.goal) {
+          bot.pathfinder.setGoal(null)
+          await new Promise(resolve => setTimeout(resolve, 100))
+      }
+      
+      // Limpiar lock
+      let waited = 0
+      while (pathfindingLock && waited < 20) {
+          await new Promise(resolve => setTimeout(resolve, 100))
+          waited++
+      }
+      pathfindingLock = false
+      
+      // Verificar pico
+      if (!await ensurePickaxe(block)) { 
+          sendPrivateMessage('❌ No tengo pico suficiente')
+          return 
+      }
+      
+      miningTarget = block
+      miningActive = true
+      currentMineY = mineLocation.y
+      
+      // Guardar estado inicial
+      saveMiningProgress()
+      
+      sendPrivateMessage(`⛏️ Minando ${block} en chunk...`)
+      
+      // Pequeño delay antes de empezar
+      setTimeout(() => {
+          if (miningActive && miningTarget) chunkMiningLoop()
+      }, 200)
+      return
+  }
+  
+  if (msg.startsWith('cerca ')) {
     const parts = message.split(' ')
     const block = parts[1], tol = parseInt(parts[2]) || 10
-    if (!mcData.blocksByName[block]) return
-    if (!await ensurePickaxe(block)) { bot.chat('No tengo pico'); return }
-    miningTarget = block; miningActive = true
+    if (!mcData.blocksByName[block]) { sendPrivateMessage(`❌ Bloque ${block} no existe`); return }
+    if (!await ensurePickaxe(block)) { sendPrivateMessage('❌ No tengo pico suficiente'); return }
+    
+    miningTarget = block
+    miningActive = true
+    autoFollowEnabled = false
+    followingPlayer = false
+    sendPrivateMessage(`⛏️ Minando ${block} cerca (tol ${tol}m)...`)
     nearbyMiningLoop(tol)
     return
   }
 
   // ===== GRANJA =====
-  if (message === 'harvest') { await harvestWheat(); return }
-  if (message === 'bake') { await makeBread(); return }
-  if (message === 'harvest and bake') { await harvestWheat(); await makeBread(); return }
+  if (msg === 'cosecha') { await harvestWheat(); sendPrivateMessage('🌾 Cosecha completada'); return }
+  if (msg === 'cocina') { await makeBread(); sendPrivateMessage('🍞 Pan horneado'); return }
+  if (msg === 'cosecha y cocina') { await harvestWheat(); await makeBread(); sendPrivateMessage('🌾🍞 Cosecha y pan listo'); return }
 
   // ===== ACCIONES =====
-  if (message === 'eat') { await eatFood(); return }
-  if (message === 'armor') { await equipBestArmor(); return }
-  if (message.startsWith('hold ')) {
+  if (msg === 'come') { await eatFood(); sendPrivateMessage('🍽️ Comí'); return }
+  if (msg === 'vestite') { await equipBestArmor(); sendPrivateMessage('🛡️ Armadura equipada'); return }
+  if (msg.startsWith('hold ')) {
     const item = bot.inventory.items().find(i => i.name === message.split(' ').slice(1).join(' '))
-    if (item) await bot.equip(item, 'hand')
+    if (item) { await bot.equip(item, 'hand'); sendPrivateMessage(`✋ Equipado ${item.name}`) }
     return
   }
-  if (message.startsWith('grab ')) {
-    if (!chestLocation) return
+  if (msg.startsWith('agarra ')) {
+    if (!chestLocation) { sendPrivateMessage('❌ No hay cofre registrado'); return }
     const item = message.split(' ').slice(1).join(' ')
-    if (await getItemFromChest(item, 1)) bot.chat(`✅ Saqué ${item}`)
+    if (await getItemFromChest(item, 1)) sendPrivateMessage(`✅ Saqué ${item} del cofre`)
     return
   }
-  if (message.startsWith('equip ')) {
+  if (msg.startsWith('equipa ')) {
     const item = bot.inventory.items().find(i => i.name === message.split(' ').slice(1).join(' '))
-    if (item) await equipItem(item)
+    if (item) { await equipItem(item); sendPrivateMessage(`🛡️ Equipado ${item.name}`) }
     return
   }
 
   // ===== CAZA =====
-  if (message === 'hunt') {
-    huntingActive = true; miningActive = false; followingPlayer = false; explorationActive = false
+  if (msg === 'caza') {
+    huntingActive = true
+    miningActive = false
+    followingPlayer = false
+    explorationActive = false
+    autoFollowEnabled = false
     if (followInterval) clearInterval(followInterval)
+    sendPrivateMessage('⚔️ Modo caza ACTIVADO')
     huntLoop()
     return
   }
-  if (message === 'stop hunt') { huntingActive = false; bot.pathfinder.setGoal(null); return }
-  if (message === 'hunt config') { bot.chat(`Salud:${HUNT_CONFIG.safeHealth} | Retirada:${HUNT_CONFIG.retreatHealth} | Escudo:${Math.round(HUNT_CONFIG.blockChance*100)}%`); return }
+  if (msg === 'no caces') { 
+    huntingActive = false
+    bot.pathfinder.setGoal(null)
+    sendPrivateMessage('⚔️ Modo caza DESACTIVADO')
+    return 
+  }
+  if (msg === 'setup caza') { sendPrivateMessage(`🎯 Salud segura:${HUNT_CONFIG.safeHealth} | Retirada:${HUNT_CONFIG.retreatHealth} | Escudo:${Math.round(HUNT_CONFIG.blockChance*100)}%`); return }
 
   // ===== EXPLORACIÓN =====
-  if (message === 'explore') {
+  if (msg === 'explora') {
     if (miningActive || huntingActive || followingPlayer) {
-      miningActive = false; huntingActive = false; followingPlayer = false
+      miningActive = false
+      huntingActive = false
+      followingPlayer = false
+      autoFollowEnabled = false
       if (followInterval) clearInterval(followInterval)
     }
-    explorationActive = true; woodcuttingActive = false
+    explorationActive = true
+    woodcuttingActive = false
+    sendPrivateMessage('🗺️ Explorando chunks...')
     exploreChunks()
     return
   }
-  if (message === 'stop explore') { explorationActive = false; woodcuttingActive = false; bot.pathfinder.setGoal(null); return }
-  if (message === 'wood') {
-    if (!explorationActive) { bot.chat('Primero "explore"'); return }
+  if (msg === 'no explores') { 
+    explorationActive = false
+    woodcuttingActive = false
+    bot.pathfinder.setGoal(null)
+    sendPrivateMessage('🗺️ Exploración DESACTIVADA')
+    return 
+  }
+  if (msg === 'madera') {
+    if (!explorationActive) { sendPrivateMessage('❌ Primero usa "explora"'); return }
     const tree = findCompleteTree()
-    if (tree) await cutTree(tree)
-    else bot.chat('No hay árboles cerca')
+    if (tree) { await cutTree(tree); sendPrivateMessage('🪓 Árbol talado') }
+    else sendPrivateMessage('🌲 No hay árboles cerca')
     return
   }
-})
+  
+  if (msg === 'dormi') { 
+    miningActive = false
+    huntingActive = false
+    followingPlayer = false
+    explorationActive = false
+    autoFollowEnabled = false
+    if (followInterval) clearInterval(followInterval)
+    bot.pathfinder.setGoal(null)
+    await sleepInBed()
+    return 
+  }
+  
+  // Comando desconocido
+  sendPrivateMessage(`❌ Comando desconocido: ${message}. Usa "aiuda" para ayuda.`)
+}
 
 function reportPickaxes() {
   const picks = ['wooden_pickaxe', 'stone_pickaxe', 'iron_pickaxe', 'golden_pickaxe', 'diamond_pickaxe', 'netherite_pickaxe']
     .map(n => ({ n, c: bot.inventory.items().filter(i => i.name === n).reduce((s,i) => s+i.count,0) }))
     .filter(p => p.c > 0)
-  bot.chat(picks.length ? `Picos: ${picks.map(p => `${p.n}:${p.c}`).join(' | ')}` : 'No tengo picos')
+  sendPrivateMessage(picks.length ? `⛏️ Picos: ${picks.map(p => `${p.n}:${p.c}`).join(' | ')}` : '⛏️ No tengo picos')
 }
 
-bot.on('error', err => console.error('❌ Error:', err))
-bot.on('end', () => { console.log('🔌 Bot desconectado'); stopDodgeSystem() })
+// Agregar esto después de bot.on('error', ...)
+bot.on('error', err => {
+  if (err.message?.includes('GoalChanged')) {
+    console.log('🔄 GoalChanged ignorado, recobrando...')
+    pathfindingLock = false
+    return
+  }
+  console.error('❌ Error:', err)
+  sendPrivateMessage(`❌ Error: ${err.message}`)
+})
+
+bot.on('end', () => { 
+  console.log('🔌 Bot desconectado')
+  stopDodgeSystem()
+  sendPrivateMessage('🔌 Bot desconectado del servidor')
+})
