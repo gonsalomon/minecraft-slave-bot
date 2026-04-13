@@ -1,0 +1,27 @@
+{
+  "chestLocation": {
+    "x": -451,
+    "y": 57,
+    "z": 678
+  },
+  "craftingTableLocation": {
+    "x": -425,
+    "y": 69,
+    "z": 728
+  },
+  "mineLocation": {
+    "x": -377,
+    "y": 16,
+    "z": 710
+  },
+  "farmLocation": {
+    "x": -419,
+    "y": 68,
+    "z": 634
+  },
+  "bedLocation": {
+    "x": -376,
+    "y": 69,
+    "z": 615
+  }
+}
