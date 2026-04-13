@@ -163,18 +163,6 @@ function getStrafeDirection(targetPos) {
   return bot.entity.position.plus(toTarget.normalize().scaled(2)).plus(perpendicular.scaled(strafe))
 }
 
-async function followPlayer() {
-  if (!following) return
-  const target = bot.players[MASTER]?.entity
-  if (!target) return
-  const dist = target.position.distanceTo(bot.entity.position)
-  if (dist > 3) {
-    // Esquivar mobs sin perder objetivo: moverse en arco
-    const moveTo = getStrafeDirection(target.position)
-    await safeSetGoal(new goals.GoalNear(moveTo.x, moveTo.y, moveTo.z, 2), true)
-  }
-}
-
 function startFollowing(username) {
   if (followInterval) clearInterval(followInterval)
   following = true
