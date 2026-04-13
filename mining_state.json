@@ -1,10 +1,12 @@
 {
   "active": true,
-  "target": "diamond_ore",
-  "currentY": -57,
-  "chunkX": -1,
-  "chunkZ": -1,
-  "startX": -8,
-  "startZ": -8,
-  "layer": -58
+  "target": "iron_ore",
+  "currentY": null,
+  "chunkX": -24,
+  "chunkZ": 44,
+  "startX": -376,
+  "startZ": 712,
+  "layer": 16,
+  "posX": -379,
+  "posZ": 710
 }
