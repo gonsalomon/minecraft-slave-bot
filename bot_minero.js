@@ -107,6 +107,7 @@ function sleep(ms) {
 }
 
 async function safeGoto(x, y, z, range = 2) {
+  console.log(`🔍 safeGoto target=(${x},${y},${z}) range=${range} current=(${bot.entity.position.x.toFixed(2)},${bot.entity.position.y.toFixed(2)},${bot.entity.position.z.toFixed(2)})`)
   // Esperar si hay lock activo
   let waited = 0
   while (pathfindingLock && waited < 30) {
@@ -147,13 +148,17 @@ async function safeGoto(x, y, z, range = 2) {
     }
     // Timeout - intentar una vez más
     if (err.message?.includes('Timeout')) {
-      console.log('⏱️ Timeout en pathfinder, reintentando...')
+      console.log(`⏱️ Timeout en pathfinder hacia (${x},${y},${z}), reintentando...`)
       await sleep(500)
       try {
         await bot.pathfinder.goto(new goals.GoalNear(x, y, z, range))
       } catch (e) {
         if (e.message?.includes('GoalChanged')) return
-        if (!e.message?.includes('Timeout')) throw e
+        if (e.message?.includes('Timeout')) {
+          console.error(`❌ Timeout persistente en safeGoto hacia (${x},${y},${z}) range=${range}`)
+          return
+        }
+        throw e
       }
       return
     }
@@ -746,28 +751,6 @@ async function handleCommand(message) {
     await lineMining(y, dir)
     miningActive = false
   }
-  else if (cmd === 'parar') {
-    miningActive = false
-    
-    if (pendingConfirmation) {
-      pendingConfirmation.resolve(false)
-      pendingConfirmation = null
-    }
-    
-    try {
-      bot.pathfinder.setGoal(null)
-    } catch (err) {
-      if (!err.message?.includes('GoalChanged')) console.error(err)
-    }
-    
-    if (followingPlayer) {
-      followingPlayer = false
-      if (followInterval) clearInterval(followInterval)
-      followInterval = null
-    }
-    
-    sendPrivateMessage('🛑 Minería detenida.')
-  }
   else if (cmd === 'agarra') {
     if (!chestLocation) {
       sendPrivateMessage('❌ No hay cofre registrado')
@@ -791,18 +774,33 @@ async function handleCommand(message) {
     startFollowing()
     sendPrivateMessage('🏃 Te sigo!')
   }
-  else if (cmd === 'quieto') {
-    try {
-      bot.pathfinder.setGoal(null)
-    } catch (err) {}
+  else if (cmd === 'parar' || cmd === 'quieto') {
+    // Detener TODA actividad
+    miningActive = false
+    followingPlayer = false
+    autoFollowEnabled = false
     
-    if (followingPlayer) {
-      followingPlayer = false
-      if (followInterval) clearInterval(followInterval)
+    // Cancelar confirmaciones pendientes
+    if (pendingConfirmation) {
+      pendingConfirmation.resolve(false)
+      pendingConfirmation = null
+    }
+    
+    // Detener interval de seguimiento
+    if (followInterval) {
+      clearInterval(followInterval)
       followInterval = null
     }
     
-    sendPrivateMessage('🚫 Me quedo quieto.')
+    // Detener pathfinder de forma segura
+    await safeSetGoal(null)
+    
+    // Mensaje apropiado
+    if (cmd === 'parar') {
+      sendPrivateMessage('🛑 Todo detenido.')
+    } else {
+      sendPrivateMessage('🚫 Me quedo quieto.')
+    }
   }
   else if (cmd === 'auto') {
     autoFollowEnabled = !autoFollowEnabled

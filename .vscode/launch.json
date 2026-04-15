@@ -7,6 +7,15 @@
       "name": "Debug Bot",
       "program": "${workspaceFolder}/bot.js",
       "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Bot Minero",
+      "program": "${workspaceFolder}/bot_minero.js",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal"
     }
   ]
 }

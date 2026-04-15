@@ -1,0 +1,20 @@
+{
+  "chestLocation": {
+    "x": 139,
+    "y": 108,
+    "z": -193
+  },
+  "craftingTableLocation": null,
+  "bedLocation": {
+    "x": 139,
+    "y": 108,
+    "z": -201
+  },
+  "villageLocation": {
+    "x": 125,
+    "y": 111,
+    "z": -184
+  },
+  "villageBedLocation": null,
+  "villagerTrades": {}
+}
