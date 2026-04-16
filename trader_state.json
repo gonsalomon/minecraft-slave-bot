@@ -16,5 +16,3014 @@
     "z": -184
   },
   "villageBedLocation": null,
-  "villagerTrades": {}
+  "villagerTrades": {
+    "3": [
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 9,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 967,
+          "count": 1,
+          "metadata": 0,
+          "nbt": {
+            "type": "compound",
+            "name": "",
+            "value": {
+              "Damage": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          },
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "iron_chestplate",
+          "displayName": "Iron Chestplate",
+          "stackSize": 1,
+          "maxDurability": 240
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.20000000298023224,
+        "demand": -792,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 9,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 967,
+            "count": 1,
+            "metadata": 0,
+            "nbt": {
+              "type": "compound",
+              "name": "",
+              "value": {
+                "Damage": {
+                  "type": "int",
+                  "value": 0
+                }
+              }
+            },
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "iron_chestplate",
+            "displayName": "Iron Chestplate",
+            "stackSize": 1,
+            "maxDurability": 240
+          }
+        ],
+        "realPrice": 9
+      },
+      {
+        "inputItem1": {
+          "type": 896,
+          "count": 15,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "coal",
+          "displayName": "Coal",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 2,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -1056,
+        "inputs": [
+          {
+            "type": 896,
+            "count": 15,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "coal",
+            "displayName": "Coal",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 15
+      }
+    ],
+    "16": [
+      {
+        "inputItem1": {
+          "type": 896,
+          "count": 15,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "coal",
+          "displayName": "Coal",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 2,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -448,
+        "inputs": [
+          {
+            "type": 896,
+            "count": 15,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "coal",
+            "displayName": "Coal",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 15
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 4,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 969,
+          "count": 1,
+          "metadata": 0,
+          "nbt": {
+            "type": "compound",
+            "name": "",
+            "value": {
+              "Damage": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          },
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "iron_boots",
+          "displayName": "Iron Boots",
+          "stackSize": 1,
+          "maxDurability": 195
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.20000000298023224,
+        "demand": -336,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 4,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 969,
+            "count": 1,
+            "metadata": 0,
+            "nbt": {
+              "type": "compound",
+              "name": "",
+              "value": {
+                "Damage": {
+                  "type": "int",
+                  "value": 0
+                }
+              }
+            },
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "iron_boots",
+            "displayName": "Iron Boots",
+            "stackSize": 1,
+            "maxDurability": 195
+          }
+        ],
+        "realPrice": 4
+      }
+    ],
+    "18": [
+      {
+        "inputItem1": {
+          "type": 1249,
+          "count": 4,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "rabbit",
+          "displayName": "Raw Rabbit",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 2,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -416,
+        "inputs": [
+          {
+            "type": 1249,
+            "count": 4,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "rabbit",
+            "displayName": "Raw Rabbit",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 4
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 1251,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "rabbit_stew",
+          "displayName": "Rabbit Stew",
+          "stackSize": 1
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -312,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 1251,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "rabbit_stew",
+            "displayName": "Rabbit Stew",
+            "stackSize": 1
+          }
+        ],
+        "realPrice": 1
+      }
+    ],
+    "20": [
+      {
+        "inputItem1": {
+          "type": 946,
+          "count": 32,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "stick",
+          "displayName": "Stick",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 2,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -384,
+        "inputs": [
+          {
+            "type": 946,
+            "count": 32,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "stick",
+            "displayName": "Stick",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 32
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 982,
+          "count": 10,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "flint",
+          "displayName": "Flint",
+          "stackSize": 64
+        },
+        "inputItem2": {
+          "type": 63,
+          "count": 10,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "gravel",
+          "displayName": "Gravel",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -288,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          },
+          {
+            "type": 63,
+            "count": 10,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "gravel",
+            "displayName": "Gravel",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": true,
+        "outputs": [
+          {
+            "type": 982,
+            "count": 10,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "flint",
+            "displayName": "Flint",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 1
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 2,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 894,
+          "count": 1,
+          "metadata": 0,
+          "nbt": {
+            "type": "compound",
+            "name": "",
+            "value": {
+              "Damage": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          },
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "bow",
+          "displayName": "Bow",
+          "stackSize": 1,
+          "maxDurability": 384
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 5,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -144,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 2,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 894,
+            "count": 1,
+            "metadata": 0,
+            "nbt": {
+              "type": "compound",
+              "name": "",
+              "value": {
+                "Damage": {
+                  "type": "int",
+                  "value": 0
+                }
+              }
+            },
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "bow",
+            "displayName": "Bow",
+            "stackSize": 1,
+            "maxDurability": 384
+          }
+        ],
+        "realPrice": 2
+      },
+      {
+        "inputItem1": {
+          "type": 982,
+          "count": 26,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "flint",
+          "displayName": "Flint",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 10,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -144,
+        "inputs": [
+          {
+            "type": 982,
+            "count": 26,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "flint",
+            "displayName": "Flint",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 26
+      }
+    ],
+    "22": [
+      {
+        "inputItem1": {
+          "type": 946,
+          "count": 32,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "stick",
+          "displayName": "Stick",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 2,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -532,
+        "inputs": [
+          {
+            "type": 946,
+            "count": 32,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "stick",
+            "displayName": "Stick",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 32
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 895,
+          "count": 16,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "arrow",
+          "displayName": "Arrow",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -408,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 895,
+            "count": 16,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "arrow",
+            "displayName": "Arrow",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 1
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 2,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 894,
+          "count": 1,
+          "metadata": 0,
+          "nbt": {
+            "type": "compound",
+            "name": "",
+            "value": {
+              "Damage": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          },
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "bow",
+          "displayName": "Bow",
+          "stackSize": 1,
+          "maxDurability": 384
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 5,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -96,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 2,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 894,
+            "count": 1,
+            "metadata": 0,
+            "nbt": {
+              "type": "compound",
+              "name": "",
+              "value": {
+                "Damage": {
+                  "type": "int",
+                  "value": 0
+                }
+              }
+            },
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "bow",
+            "displayName": "Bow",
+            "stackSize": 1,
+            "maxDurability": 384
+          }
+        ],
+        "realPrice": 2
+      },
+      {
+        "inputItem1": {
+          "type": 982,
+          "count": 26,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "flint",
+          "displayName": "Flint",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 10,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -96,
+        "inputs": [
+          {
+            "type": 982,
+            "count": 26,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "flint",
+            "displayName": "Flint",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 26
+      }
+    ],
+    "23": [
+      {
+        "inputItem1": {
+          "type": 1114,
+          "count": 32,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "rotten_flesh",
+          "displayName": "Rotten Flesh",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 2,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -1662,
+        "inputs": [
+          {
+            "type": 1114,
+            "count": 32,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "rotten_flesh",
+            "displayName": "Rotten Flesh",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 32
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 717,
+          "count": 2,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "redstone",
+          "displayName": "Redstone Dust",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -1248,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 717,
+            "count": 2,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "redstone",
+            "displayName": "Redstone Dust",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 1
+      }
+    ],
+    "24": [
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 2,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 1105,
+          "count": 1,
+          "metadata": 0,
+          "nbt": {
+            "type": "compound",
+            "name": "",
+            "value": {
+              "Damage": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          },
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "shears",
+          "displayName": "Shears",
+          "stackSize": 1,
+          "maxDurability": 238
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -1176,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 2,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 1105,
+            "count": 1,
+            "metadata": 0,
+            "nbt": {
+              "type": "compound",
+              "name": "",
+              "value": {
+                "Damage": {
+                  "type": "int",
+                  "value": 0
+                }
+              }
+            },
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "shears",
+            "displayName": "Shears",
+            "stackSize": 1,
+            "maxDurability": 238
+          }
+        ],
+        "realPrice": 2
+      },
+      {
+        "inputItem1": {
+          "type": 225,
+          "count": 18,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "brown_wool",
+          "displayName": "Brown Wool",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 2,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -1568,
+        "inputs": [
+          {
+            "type": 225,
+            "count": 18,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "brown_wool",
+            "displayName": "Brown Wool",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 18
+      }
+    ],
+    "25": [
+      {
+        "inputItem1": {
+          "type": 952,
+          "count": 20,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "wheat",
+          "displayName": "Wheat",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 2,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -1598,
+        "inputs": [
+          {
+            "type": 952,
+            "count": 20,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "wheat",
+            "displayName": "Wheat",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 20
+      },
+      {
+        "inputItem1": {
+          "type": 1228,
+          "count": 26,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "potato",
+          "displayName": "Potato",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 2,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -1598,
+        "inputs": [
+          {
+            "type": 1228,
+            "count": 26,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "potato",
+            "displayName": "Potato",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 26
+      }
+    ],
+    "27": [
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 895,
+          "count": 16,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "arrow",
+          "displayName": "Arrow",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -1438,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 895,
+            "count": 16,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "arrow",
+            "displayName": "Arrow",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 1
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 982,
+          "count": 10,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "flint",
+          "displayName": "Flint",
+          "stackSize": 64
+        },
+        "inputItem2": {
+          "type": 63,
+          "count": 10,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "gravel",
+          "displayName": "Gravel",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -1440,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          },
+          {
+            "type": 63,
+            "count": 10,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "gravel",
+            "displayName": "Gravel",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": true,
+        "outputs": [
+          {
+            "type": 982,
+            "count": 10,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "flint",
+            "displayName": "Flint",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 1
+      }
+    ],
+    "30": [
+      {
+        "inputItem1": {
+          "type": 896,
+          "count": 15,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "coal",
+          "displayName": "Coal",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 2,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -638,
+        "inputs": [
+          {
+            "type": 896,
+            "count": 15,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "coal",
+            "displayName": "Coal",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 15
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 5,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 966,
+          "count": 1,
+          "metadata": 0,
+          "nbt": {
+            "type": "compound",
+            "name": "",
+            "value": {
+              "Damage": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          },
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "iron_helmet",
+          "displayName": "Iron Helmet",
+          "stackSize": 1,
+          "maxDurability": 165
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.20000000298023224,
+        "demand": -476,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 5,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 966,
+            "count": 1,
+            "metadata": 0,
+            "nbt": {
+              "type": "compound",
+              "name": "",
+              "value": {
+                "Damage": {
+                  "type": "int",
+                  "value": 0
+                }
+              }
+            },
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "iron_helmet",
+            "displayName": "Iron Helmet",
+            "stackSize": 1,
+            "maxDurability": 165
+          }
+        ],
+        "realPrice": 5
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 965,
+          "count": 1,
+          "metadata": 0,
+          "nbt": {
+            "type": "compound",
+            "name": "",
+            "value": {
+              "Damage": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          },
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "chainmail_boots",
+          "displayName": "Chainmail Boots",
+          "stackSize": 1,
+          "maxDurability": 195
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 5,
+        "specialPrice": 0,
+        "priceMultiplier": 0.20000000298023224,
+        "demand": -396,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 965,
+            "count": 1,
+            "metadata": 0,
+            "nbt": {
+              "type": "compound",
+              "name": "",
+              "value": {
+                "Damage": {
+                  "type": "int",
+                  "value": 0
+                }
+              }
+            },
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "chainmail_boots",
+            "displayName": "Chainmail Boots",
+            "stackSize": 1,
+            "maxDurability": 195
+          }
+        ],
+        "realPrice": 1
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 36,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 1362,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "bell",
+          "displayName": "Bell",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 5,
+        "specialPrice": 0,
+        "priceMultiplier": 0.20000000298023224,
+        "demand": -396,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 36,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 1362,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "bell",
+            "displayName": "Bell",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 36
+      },
+      {
+        "inputItem1": {
+          "type": 898,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "diamond",
+          "displayName": "Diamond",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 20,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -360,
+        "inputs": [
+          {
+            "type": 898,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "diamond",
+            "displayName": "Diamond",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 1
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 4,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 963,
+          "count": 1,
+          "metadata": 0,
+          "nbt": {
+            "type": "compound",
+            "name": "",
+            "value": {
+              "Damage": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          },
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "chainmail_chestplate",
+          "displayName": "Chainmail Chestplate",
+          "stackSize": 1,
+          "maxDurability": 240
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 10,
+        "specialPrice": 0,
+        "priceMultiplier": 0.20000000298023224,
+        "demand": -360,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 4,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 963,
+            "count": 1,
+            "metadata": 0,
+            "nbt": {
+              "type": "compound",
+              "name": "",
+              "value": {
+                "Damage": {
+                  "type": "int",
+                  "value": 0
+                }
+              }
+            },
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "chainmail_chestplate",
+            "displayName": "Chainmail Chestplate",
+            "stackSize": 1,
+            "maxDurability": 240
+          }
+        ],
+        "realPrice": 4
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 20,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 973,
+          "count": 1,
+          "metadata": 0,
+          "nbt": {
+            "type": "compound",
+            "name": "",
+            "value": {
+              "Damage": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          },
+          "components": [
+            {
+              "type": "enchantments",
+              "data": {
+                "enchantments": [
+                  {
+                    "id": 28,
+                    "level": 2
+                  },
+                  {
+                    "id": 9,
+                    "level": 2
+                  },
+                  {
+                    "id": 40,
+                    "level": 2
+                  }
+                ]
+              }
+            }
+          ],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "diamond_boots",
+          "displayName": "Diamond Boots",
+          "stackSize": 1,
+          "maxDurability": 429
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 3,
+        "xp": 15,
+        "specialPrice": 0,
+        "priceMultiplier": 0.20000000298023224,
+        "demand": -72,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 20,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 973,
+            "count": 1,
+            "metadata": 0,
+            "nbt": {
+              "type": "compound",
+              "name": "",
+              "value": {
+                "Damage": {
+                  "type": "int",
+                  "value": 0
+                }
+              }
+            },
+            "components": [
+              {
+                "type": "enchantments",
+                "data": {
+                  "enchantments": [
+                    {
+                      "id": 28,
+                      "level": 2
+                    },
+                    {
+                      "id": 9,
+                      "level": 2
+                    },
+                    {
+                      "id": 40,
+                      "level": 2
+                    }
+                  ]
+                }
+              }
+            ],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "diamond_boots",
+            "displayName": "Diamond Boots",
+            "stackSize": 1,
+            "maxDurability": 429
+          }
+        ],
+        "realPrice": 20
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 32,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 972,
+          "count": 1,
+          "metadata": 0,
+          "nbt": {
+            "type": "compound",
+            "name": "",
+            "value": {
+              "Damage": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          },
+          "components": [
+            {
+              "type": "enchantments",
+              "data": {
+                "enchantments": [
+                  {
+                    "id": 28,
+                    "level": 2
+                  }
+                ]
+              }
+            }
+          ],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "diamond_leggings",
+          "displayName": "Diamond Leggings",
+          "stackSize": 1,
+          "maxDurability": 495
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 3,
+        "xp": 15,
+        "specialPrice": 0,
+        "priceMultiplier": 0.20000000298023224,
+        "demand": -72,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 32,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 972,
+            "count": 1,
+            "metadata": 0,
+            "nbt": {
+              "type": "compound",
+              "name": "",
+              "value": {
+                "Damage": {
+                  "type": "int",
+                  "value": 0
+                }
+              }
+            },
+            "components": [
+              {
+                "type": "enchantments",
+                "data": {
+                  "enchantments": [
+                    {
+                      "id": 28,
+                      "level": 2
+                    }
+                  ]
+                }
+              }
+            ],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "diamond_leggings",
+            "displayName": "Diamond Leggings",
+            "stackSize": 1,
+            "maxDurability": 495
+          }
+        ],
+        "realPrice": 32
+      }
+    ],
+    "35": [
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 953,
+          "count": 6,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "bread",
+          "displayName": "Bread",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -64,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 953,
+            "count": 6,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "bread",
+            "displayName": "Bread",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 1
+      },
+      {
+        "inputItem1": {
+          "type": 952,
+          "count": 20,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "wheat",
+          "displayName": "Wheat",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 2,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -64,
+        "inputs": [
+          {
+            "type": 952,
+            "count": 20,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "wheat",
+            "displayName": "Wheat",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 20
+      }
+    ],
+    "37": [
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 1025,
+          "count": 10,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "brick",
+          "displayName": "Brick",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -384,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 1025,
+            "count": 10,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "brick",
+            "displayName": "Brick",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 1
+      },
+      {
+        "inputItem1": {
+          "type": 1026,
+          "count": 10,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "clay_ball",
+          "displayName": "Clay Ball",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 2,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -384,
+        "inputs": [
+          {
+            "type": 1026,
+            "count": 10,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "clay_ball",
+            "displayName": "Clay Ball",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 10
+      }
+    ],
+    "41": [
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 982,
+          "count": 10,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "flint",
+          "displayName": "Flint",
+          "stackSize": 64
+        },
+        "inputItem2": {
+          "type": 63,
+          "count": 10,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "gravel",
+          "displayName": "Gravel",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -408,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          },
+          {
+            "type": 63,
+            "count": 10,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "gravel",
+            "displayName": "Gravel",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": true,
+        "outputs": [
+          {
+            "type": 982,
+            "count": 10,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "flint",
+            "displayName": "Flint",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 1
+      },
+      {
+        "inputItem1": {
+          "type": 946,
+          "count": 32,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "stick",
+          "displayName": "Stick",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 16,
+        "xp": 2,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -544,
+        "inputs": [
+          {
+            "type": 946,
+            "count": 32,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "stick",
+            "displayName": "Stick",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 32
+      },
+      {
+        "inputItem1": {
+          "type": 982,
+          "count": 26,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "flint",
+          "displayName": "Flint",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 10,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -336,
+        "inputs": [
+          {
+            "type": 982,
+            "count": 26,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "flint",
+            "displayName": "Flint",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 26
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 2,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 894,
+          "count": 1,
+          "metadata": 0,
+          "nbt": {
+            "type": "compound",
+            "name": "",
+            "value": {
+              "Damage": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          },
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "bow",
+          "displayName": "Bow",
+          "stackSize": 1,
+          "maxDurability": 384
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 5,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -336,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 2,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 894,
+            "count": 1,
+            "metadata": 0,
+            "nbt": {
+              "type": "compound",
+              "name": "",
+              "value": {
+                "Damage": {
+                  "type": "int",
+                  "value": 0
+                }
+              }
+            },
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "bow",
+            "displayName": "Bow",
+            "stackSize": 1,
+            "maxDurability": 384
+          }
+        ],
+        "realPrice": 2
+      }
+    ],
+    "42": [
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 982,
+          "count": 10,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "flint",
+          "displayName": "Flint",
+          "stackSize": 64
+        },
+        "inputItem2": {
+          "type": 63,
+          "count": 10,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "gravel",
+          "displayName": "Gravel",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -864,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          },
+          {
+            "type": 63,
+            "count": 10,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "gravel",
+            "displayName": "Gravel",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": true,
+        "outputs": [
+          {
+            "type": 982,
+            "count": 10,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "flint",
+            "displayName": "Flint",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 1
+      },
+      {
+        "inputItem1": {
+          "type": 899,
+          "count": 1,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "emerald",
+          "displayName": "Emerald",
+          "stackSize": 64
+        },
+        "outputItem": {
+          "type": 895,
+          "count": 16,
+          "metadata": 0,
+          "nbt": null,
+          "components": [],
+          "removedComponents": [],
+          "componentMap": {},
+          "stackId": null,
+          "name": "arrow",
+          "displayName": "Arrow",
+          "stackSize": 64
+        },
+        "tradeDisabled": false,
+        "nbTradeUses": 0,
+        "maximumNbTradeUses": 12,
+        "xp": 1,
+        "specialPrice": 0,
+        "priceMultiplier": 0.05000000074505806,
+        "demand": -864,
+        "inputs": [
+          {
+            "type": 899,
+            "count": 1,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "emerald",
+            "displayName": "Emerald",
+            "stackSize": 64
+          }
+        ],
+        "hasItem2": false,
+        "outputs": [
+          {
+            "type": 895,
+            "count": 16,
+            "metadata": 0,
+            "nbt": null,
+            "components": [],
+            "removedComponents": [],
+            "componentMap": {},
+            "stackId": null,
+            "name": "arrow",
+            "displayName": "Arrow",
+            "stackSize": 64
+          }
+        ],
+        "realPrice": 1
+      }
+    ]
+  }
 }

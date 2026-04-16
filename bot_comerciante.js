@@ -346,35 +346,7 @@ async function depositInChest() {
   }
 }
 
-// ===================== INTERACCIÓN CON ALDEANOS (CORREGIDO) =====================
-/**
- * Verifica si el camino hasta el destino está bloqueado por vidrio, muros o vallas.
- * Retorna true si está bloqueado (debe saltarse al aldeano).
- */
-async function isPathBlocked(targetPos) {
-  try {
-    const start = bot.entity.position
-    const goal = new goals.GoalBlock(targetPos.x, targetPos.y, targetPos.z)
-    // Intentar encontrar un path (no lo ejecuta, solo simula)
-    const path = await bot.pathfinder.findPath(start, goal, 100)
-    if (!path || path.length === 0) return true // sin camino
-
-    // Revisar cada nodo del camino (son posiciones Vec3)
-    for (const node of path) {
-      const block = bot.blockAt(node)
-      if (!block) continue
-      const name = block.name
-      if (name.includes('glass') || name.includes('wall') || name.includes('fence') || name.includes('pane')) {
-        console.log(`🚫 Camino bloqueado por ${name} en ${node}`)
-        return true
-      }
-    }
-    return false
-  } catch (err) {
-    console.log('isPathBlocked error:', err.message)
-    return true // si hay error, asumimos bloqueado para no romper nada
-  }
-}
+// ===================== INTERACCIÓN CON ALDEANOS =====================
 
 function getNearestVillager(maxDistance = 64, profession = null) {
   let nearest = null
@@ -414,8 +386,8 @@ async function fetchVillagerTrades(villagerEntity) {
   while (attempts < 3 && (!trades || trades.length === 0)) {
     try {
       villagerWindow = await bot.openVillager(villagerEntity)
-      // Dar tiempo a que carguen los trades (1 tick = 50ms aprox)
-      await sleep(50)
+      // Dar tiempo a que carguen los trades (aumentado a 200ms para mayor seguridad)
+      await sleep(200)
       trades = villagerWindow.trades
       if (trades && trades.length > 0) {
         return { trades, window: villagerWindow }
@@ -441,25 +413,24 @@ async function readVillagerTrades(profession = null) {
     return
   }
 
-  // Verificar camino bloqueado
-  if (await isPathBlocked(villager.position)) {
-    sendPrivateMessage(`🚫 Camino bloqueado hacia aldeano (vidrio/muro). Salteando.`)
-    return
+  try {
+    await safeGoto(villager.position.x, villager.position.y, villager.position.z, 2)
+    await sleep(500)
+
+    const { trades, window } = await fetchVillagerTrades(villager)
+    if (!trades || trades.length === 0) {
+      sendPrivateMessage(`❌ No se pudieron obtener trades después de 3 intentos.`)
+      return
+    }
+
+    villagerTrades[villager.id] = trades
+    saveState()
+    sendPrivateMessage(`✅ Aldeano registrado con ${trades.length} ofertas.`)
+    if (window) window.close()
+  } catch (err) {
+    console.error('Error leyendo trades:', err.message)
+    sendPrivateMessage(`❌ Error: ${err.message}`)
   }
-
-  await safeGoto(villager.position.x, villager.position.y, villager.position.z, 2)
-  await sleep(500)
-
-  const { trades, window } = await fetchVillagerTrades(villager)
-  if (!trades || trades.length === 0) {
-    sendPrivateMessage(`❌ No se pudieron obtener trades después de 3 intentos.`)
-    return
-  }
-
-  villagerTrades[villager.id] = trades
-  saveState()
-  sendPrivateMessage(`✅ Aldeano registrado con ${trades.length} ofertas.`)
-  if (window) window.close()
 }
 
 async function investigateAllVillagers() {
@@ -478,22 +449,20 @@ async function investigateAllVillagers() {
 
   sendPrivateMessage(`🔍 Investigando ${villagers.length} aldeanos con oficio...`)
   let registered = 0
-  let skippedBlocked = 0
+  let skippedErrors = 0
 
   for (let i = 0; i < villagers.length; i++) {
     const villager = villagers[i]
     const dist = villager.position.distanceTo(bot.entity.position)
     console.log(`[${i + 1}/${villagers.length}] Investigando aldeano a ${Math.floor(dist)} bloques...`)
 
-    // Verificar camino bloqueado ANTES de moverse
-    if (await isPathBlocked(villager.position)) {
-      sendPrivateMessage(`🚫 Aldeano ${i+1} inaccesible (vidrio/muro). Saltando.`)
-      skippedBlocked++
-      continue
-    }
-
     try {
-      await safeGoto(villager.position.x, villager.position.y, villager.position.z, 2)
+      // Intentar llegar al aldeano con timeout
+      await Promise.race([
+        safeGoto(villager.position.x, villager.position.y, villager.position.z, 3),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 15000))
+      ])
+      
       await sleep(500)
 
       const { trades, window } = await fetchVillagerTrades(villager)
@@ -507,13 +476,19 @@ async function investigateAllVillagers() {
       if (window) window.close()
     } catch (err) {
       console.error(`Error con aldeano ${i+1}:`, err.message)
+      skippedErrors++
+      // Intentar cancelar pathfinding si hay error
+      try {
+        bot.pathfinder.setGoal(null)
+      } catch {}
     }
 
-    if (i < villagers.length - 1) await sleep(800)
+    // Delay más largo entre aldeanos para no sobrecargar
+    if (i < villagers.length - 1) await sleep(1500)
   }
 
   saveState()
-  sendPrivateMessage(`📊 Investigación completada: ${registered}/${villagers.length} registrados (${skippedBlocked} inaccesibles). Usa 'trades' para ver.`)
+  sendPrivateMessage(`📊 Investigación completada: ${registered}/${villagers.length} registrados (${skippedErrors} con errores). Usa 'trades' para ver.`)
 }
 
 // ===================== ALDEA =====================
