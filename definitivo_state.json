@@ -1,20 +1,54 @@
 {
-  "chestLocation": {
-    "x": 120,
-    "y": 111,
-    "z": -195
-  },
+  "chestLocations": [
+    {
+      "x": -680,
+      "y": 68,
+      "z": -252
+    },
+    {
+      "x": -885,
+      "y": 73,
+      "z": -527
+    }
+  ],
+  "chestBlacklist": [
+    {
+      "x": -680,
+      "y": 69,
+      "z": -252
+    },
+    {
+      "x": -680,
+      "y": 70,
+      "z": -252
+    },
+    {
+      "x": -885,
+      "y": 73,
+      "z": -529
+    }
+  ],
   "craftingTableLocation": {
-    "x": 118,
-    "y": 111,
-    "z": -195
+    "x": -681,
+    "y": 22,
+    "z": -254
   },
   "bedLocation": {
-    "x": 137,
-    "y": 108,
-    "z": -201
+    "x": -887,
+    "y": 73,
+    "z": -527
   },
-  "villageLocation": null,
+  "villageLocation": {
+    "x": -871,
+    "y": 67,
+    "z": -501
+  },
   "villageBedLocation": null,
+  "mineLocation": {
+    "x": -677,
+    "y": 8,
+    "z": -249
+  },
+  "farmLocation": null,
   "villagerTrades": {}
 }
