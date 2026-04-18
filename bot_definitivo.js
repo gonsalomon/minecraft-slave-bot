@@ -207,17 +207,23 @@ async function discoverChests(radius = 16) {
   const pos = bot.entity.position
   const foundChests = []
   
-  // Scan area for chests
+  sendPrivateMessage(`🔍 Escaneando radio ${radius} bloques...`)
+  
   for (let x = Math.floor(pos.x) - radius; x <= Math.floor(pos.x) + radius; x++) {
     for (let y = Math.floor(pos.y) - radius; y <= Math.floor(pos.y) + radius; y++) {
       for (let z = Math.floor(pos.z) - radius; z <= Math.floor(pos.z) + radius; z++) {
-        const block = bot.blockAt(new Vec3(x, y, z))
-        if (block && block.name.includes('chest')) {
-          // Check if not already registered and not blacklisted
-          const alreadyRegistered = chestLocations.some(c => c.x === x && c.y === y && c.z === z)
-          if (!alreadyRegistered && !isChestBlacklisted(x, y, z)) {
-            foundChests.push({ x, y, z })
+        try {
+          const block = bot.blockAt(new Vec3(x, y, z))
+          if (block && block.name.includes('chest')) {
+            const alreadyRegistered = chestLocations.some(c => c.x === x && c.y === y && c.z === z)
+            const isBlacklisted = isChestBlacklisted(x, y, z)
+            
+            if (!alreadyRegistered && !isBlacklisted) {
+              foundChests.push({ x, y, z })
+            }
           }
+        } catch (err) {
+          // Ignore individual block errors
         }
       }
     }
@@ -230,10 +236,11 @@ async function discoverChests(radius = 16) {
     foundChests.forEach((c, i) => {
       sendPrivateMessage(`  ${i + 1}. X:${c.x} Y:${c.y} Z:${c.z}`)
     })
-    return foundChests
+  } else {
+    sendPrivateMessage(`📦 No encontré cofres nuevos (radio ${radius})`)
   }
   
-  return []
+  return foundChests
 }
 
 // Craft a chest
@@ -348,10 +355,7 @@ async function findAndCutWood(minLogs = 8) {
   // Process wood to planks
   const logs = bot.inventory.items().filter(i => woodTypes.includes(i.name))
   for (const log of logs) {
-    await bot.equip(log, 'hand')
-    await sleep(100)
-    // Right-click to craft planks (auto-craft)
-    await bot.placeBlock(bot.blockAt(bot.entity.position.offset(0, -1, 0)), new Vec3(0, 1, 0))
+    await craftPlanks(log.name)
     await sleep(300)
   }
   
@@ -397,6 +401,7 @@ let dodgeInterval = null
 let lastChunkX = 0, lastChunkZ = 0
 let exploredChunks = new Set()
 
+let operationCancelled = false
 const STATE_FILE = './definitivo_state.json'
 const MINING_STATE_FILE = './mining_state.json'
 
@@ -476,21 +481,39 @@ async function safeSetGoal(goal, priority = false) {
 
 async function safeGoto(x, y, z, range = 2) {
   let waited = 0
-  while (pathfindingLock && waited < 30) { await sleep(100); waited++ }
-  if (pathfindingLock) { pathfindingLock = false; bot.pathfinder.setGoal(null); await sleep(50) }
-  if (bot.pathfinder?.goal) bot.pathfinder.setGoal(null)
+  while (pathfindingLock && waited < 30) { 
+    await sleep(100)
+    waited++ 
+  }
+  
+  if (pathfindingLock) { 
+    pathfindingLock = false
+    try { bot.pathfinder.setGoal(null) } catch {}
+    await sleep(50) 
+  }
+  
+  try {
+    if (bot.pathfinder?.goal) bot.pathfinder.setGoal(null)
+  } catch {}
+  
   setSprintMode(false)
+  
   try {
     pathfindingLock = true
     await Promise.race([
       bot.pathfinder.goto(new goals.GoalNear(x, y, z, range)),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Pathfinding timeout')), 15000))
+      new Promise((_, reject) => setTimeout(() => reject(new Error('safeGoto_timeout')), 30000))
     ])
+    return true
   } catch (err) {
-    if (!err.message?.includes('GoalChanged') && !err.message?.includes('Timeout')) {
-      console.error('Error en pathfinding:', err.message)
+    const isMinor = err.message?.includes('GoalChanged') || 
+                    err.message?.includes('timeout') ||
+                    err.message?.includes('Timeout')
+    if (!isMinor) {
+      console.error('⚠️ safeGoto error:', err.message)
     }
-    bot.pathfinder.setGoal(null)
+    try { bot.pathfinder.setGoal(null) } catch {}
+    return false
   } finally {
     setSprintMode(true)
     pathfindingLock = false
@@ -608,7 +631,14 @@ const depositState = { active: false, lastRun: 0, lastInventoryHash: null, coold
 async function depositInChest() {
   const chest = getClosestChest()
   if (!chest) { sendPrivateMessage('⚠️ No hay cofre registrado.'); return }
-  if (depositState.active) { while (depositState.active) await sleep(50); return }
+  if (depositState.active) { 
+    let waited = 0
+    while (depositState.active && waited < 100) { 
+      await sleep(50)
+      waited++
+    }
+    return 
+  }
 
   const currentHash = getInventoryHash()
   if (currentHash !== '' && currentHash === depositState.lastInventoryHash) return
@@ -622,9 +652,18 @@ async function depositInChest() {
   depositState.lastRun = Date.now()
 
   try {
-    await safeGoto(chest.x, chest.y, chest.z, 2)
+    const success = await safeGoto(chest.x, chest.y, chest.z, 2)
+    if (!success) {
+      depositState.active = false
+      return
+    }
+    
     const chestBlock = bot.blockAt(new Vec3(chest.x, chest.y, chest.z))
-    if (!chestBlock || !chestBlock.name.includes('chest')) { sendPrivateMessage('No encuentro el cofre.'); return }
+    if (!chestBlock || !chestBlock.name.includes('chest')) { 
+      sendPrivateMessage('No encuentro el cofre.')
+      depositState.active = false
+      return 
+    }
 
     const armorNames = new Set(Object.values(ARMOR_PRIORITY).flat())
     const keepTypes = new Set()
@@ -644,11 +683,16 @@ async function depositInChest() {
       }
     }
     openedChest.close()
-    if (depositedCount > 0) sendPrivateMessage(`✅ Depositados ${depositedCount} items en cofre más cercano`)
+    if (depositedCount > 0) sendPrivateMessage(`✅ Depositados ${depositedCount} items`)
     depositState.lastInventoryHash = getInventoryHash()
   } catch (err) {
-    if (!err.message?.includes('GoalChanged')) console.error('depositInChest error:', err)
-  } finally { depositState.active = false }
+    const msg = err.message || String(err)
+    if (!msg.includes('GoalChanged') && !msg.includes('timeout')) {
+      console.error('depositInChest error:', msg)
+    }
+  } finally { 
+    depositState.active = false 
+  }
 }
 
 async function depositExcessIfNeeded() {
@@ -698,10 +742,14 @@ async function sleepInBed() {
 
 // ===================== ALDEA =====================
 function isInVillageArea(pos, extraRadius = 0) {
-  if (!villageLocation) return false
-  const dx = pos.x - villageLocation.x
-  const dz = pos.z - villageLocation.z
-  return Math.sqrt(dx * dx + dz * dz) <= (VILLAGE_RADIUS + extraRadius)
+  try {
+    if (!villageLocation || !villageLocation.x) return false
+    const dx = pos.x - villageLocation.x
+    const dz = pos.z - villageLocation.z
+    return Math.sqrt(dx * dx + dz * dz) <= (VILLAGE_RADIUS + extraRadius)
+  } catch {
+    return false
+  }
 }
 
 async function findVillage() {
@@ -873,22 +921,27 @@ async function mineCobblestone(amount) {
 }
 
 function findCompleteTree(maxDistance = 120) {
-  const log = bot.findBlock({
-    matching: b => {
-      if (!WOOD_BLOCKS.has(b?.name)) return false
-      if (isInVillageArea(b.position)) return false
-      return true
-    },
-    maxDistance
-  })
-  if (!log) return null
+  try {
+    const log = bot.findBlock({
+      matching: b => {
+        if (!WOOD_BLOCKS.has(b?.name)) return false
+        if (isInVillageArea(b.position)) return false
+        return true
+      },
+      maxDistance
+    })
+    if (!log) return null
 
-  const treeBlocks = []
-  for (let y = -1; y <= TREE_HEIGHT_LIMIT; y++) {
-    const block = bot.blockAt(log.position.offset(0, y, 0))
-    if (block && WOOD_BLOCKS.has(block.name)) treeBlocks.push(block)
+    const treeBlocks = []
+    for (let y = -1; y <= TREE_HEIGHT_LIMIT; y++) {
+      const block = bot.blockAt(log.position.offset(0, y, 0))
+      if (block && WOOD_BLOCKS.has(block.name)) treeBlocks.push(block)
+    }
+    return treeBlocks.length ? { blocks: treeBlocks, basePos: treeBlocks[0].position } : null
+  } catch (err) {
+    console.error('findCompleteTree error:', err.message)
+    return null
   }
-  return treeBlocks.length ? { blocks: treeBlocks, basePos: treeBlocks[0].position } : null
 }
 
 async function cutTree(tree) {
@@ -1755,23 +1808,28 @@ function getNearestVillager(maxDistance = 64, profession = null) {
   return nearest
 }
 
-async function fetchVillagerTrades(villagerEntity) {
+async function fetchVillagerTrades(villagerEntity, maxAttempts = 1) {
   let attempts = 0
-  while (attempts < 2) {
+  while (attempts < maxAttempts) {
     try {
-      const villagerWindow = await Promise.race([
-        bot.openVillager(villagerEntity),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 8000))
-      ])
-      await sleep(200)
+      // Try to open villager with timeout handling
+      const villagerWindow = await bot.openVillager(villagerEntity)
+      await sleep(300)
+      
       const trades = villagerWindow.trades
-      if (trades && trades.length > 0) return { trades, window: villagerWindow }
+      if (trades && trades.length > 0) {
+        return { trades, window: villagerWindow }
+      }
+      
       villagerWindow.close()
       attempts++
       await sleep(500)
     } catch (err) {
+      // Handle all errors gracefully
       attempts++
-      if (attempts < 2) await sleep(1500)
+      if (attempts < maxAttempts) {
+        await sleep(2000)
+      }
     }
   }
   return { trades: null, window: null }
@@ -1785,31 +1843,116 @@ async function investigateAllVillagers() {
     return prof !== 'none' && prof !== 'nitwit'
   })
 
-  if (villagers.length === 0) { sendPrivateMessage('❌ No hay aldeanos con oficio.'); return }
+  if (villagers.length === 0) { 
+    sendPrivateMessage('❌ No hay aldeanos con oficio.')
+    return 
+  }
 
-  sendPrivateMessage(`🔍 Investigando ${villagers.length} aldeanos...`)
+  sendPrivateMessage(`🔍 Escaneando ${villagers.length} aldeanos...`)
   let registered = 0
+  let failed = 0
 
   for (let i = 0; i < villagers.length; i++) {
     const villager = villagers[i]
+    
+    if (!villager.isValid) {
+      failed++
+      continue
+    }
+    
+    const profession = villager.metadata[18]?.profession || 'unknown'
+    const professionName = {
+      'farmer': 'granjero', 'librarian': 'bibliotecario', 'cleric': 'clérigo',
+      'armorer': 'armero', 'weaponsmith': 'herrero de armas', 'toolsmith': 'herrero de herramientas',
+      'butcher': 'carnicero', 'leatherworker': 'peletero', 'mason': 'albañil',
+      'fletcher': 'flechero', 'shepherd': 'pastor', 'fisherman': 'pescador',
+      'cartographer': 'cartógrafo'
+    }[profession] || profession
+
+    sendPrivateMessage(`🔎 Aldeano ${i + 1}/${villagers.length}: ${professionName}`)
+
     try {
-      await Promise.race([
-        safeGoto(villager.position.x, villager.position.y, villager.position.z, 3),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 15000))
-      ])
+      const success = await safeGoto(villager.position.x, villager.position.y, villager.position.z, 3)
+      if (!success) {
+        sendPrivateMessage(`  ⚠️ No pude llegar`)
+        failed++
+        continue
+      }
+      
       await sleep(500)
-      const { trades, window } = await fetchVillagerTrades(villager)
+      
+      if (!villager.isValid) {
+        sendPrivateMessage(`  ⚠️ Aldeano desapareció`)
+        failed++
+        continue
+      }
+      
+      // Ultra-defensive villager opening
+      let villagerWindow = null
+      try {
+        villagerWindow = await bot.openVillager(villager)
+        await sleep(300)
+      } catch (openErr) {
+        sendPrivateMessage(`  ⚠️ No responde (${openErr.message.substring(0, 30)}...)`)
+        failed++
+        continue
+      }
+      
+      const trades = villagerWindow?.trades
+      
       if (trades && trades.length > 0) {
         villagerTrades[villager.id] = trades
         registered++
+        
+        // Librarian enchantment detection
+        if (profession === 'librarian') {
+          const enchantedBooks = trades.filter(t => t.outputItem?.name === 'enchanted_book')
+          
+          if (enchantedBooks.length > 0) {
+            sendPrivateMessage(`  📚 Encantamientos:`)
+            for (const trade of enchantedBooks) {
+              try {
+                const book = trade.outputItem
+                if (book.nbt?.value?.StoredEnchantments?.value?.value) {
+                  const enchants = book.nbt.value.StoredEnchantments.value.value
+                  for (const ench of enchants) {
+                    const enchId = ench.id.value.replace('minecraft:', '')
+                    const enchLvl = ench.lvl.value
+                    sendPrivateMessage(`    • ${enchId} ${enchLvl}`)
+                  }
+                } else {
+                  sendPrivateMessage(`    • (libro sin datos)`)
+                }
+              } catch {
+                sendPrivateMessage(`    • (error leyendo libro)`)
+              }
+            }
+          }
+        }
+        
+        sendPrivateMessage(`  ✅ ${trades.length} ofertas`)
+      } else {
+        sendPrivateMessage(`  ⚠️ Sin ofertas`)
+        failed++
       }
-      if (window) window.close()
-    } catch (err) { console.error('Error con aldeano:', err.message) }
-    if (i < villagers.length - 1) await sleep(1500)
+      
+      if (villagerWindow) {
+        try {
+          villagerWindow.close()
+        } catch {}
+      }
+      
+    } catch (err) { 
+      const errMsg = err.message || String(err)
+      sendPrivateMessage(`  ❌ Error: ${errMsg.substring(0, 40)}`)
+      failed++
+    }
+    
+    if (i < villagers.length - 1) await sleep(2000)
   }
 
   saveState()
-  sendPrivateMessage(`📊 Registrados ${registered}/${villagers.length} aldeanos.`)
+  sendPrivateMessage(`📊 Resultado: ${registered} OK, ${failed} fallidos, ${villagers.length} total`)
 }
 
 async function findFletchers() {
@@ -1888,9 +2031,10 @@ async function craftFletchingTable() {
 async function optimizeVillage() {
   sendPrivateMessage('🎯 Iniciando optimización de aldea...')
 
-  sendPrivateMessage('📋 Escaneando aldeanos...')
-  await investigateAllVillagers()
-  await sleep(2000)
+  try {
+    sendPrivateMessage('📋 Escaneando aldeanos...')
+    await investigateAllVillagers()
+    await sleep(2000)
 
   sendPrivateMessage('🏹 Buscando nitwits para convertir...')
   const nitwits = Object.values(bot.entities).filter(e => {
@@ -1944,7 +2088,12 @@ async function optimizeVillage() {
 
   sendPrivateMessage('🔧 Mejorando otros oficios...')
   sendPrivateMessage('🎯 Optimización completada')
-  tradingActive = false
+  } catch (err) {
+    sendPrivateMessage(`❌ Error en optimización: ${err.message}`)
+    console.error('Error en optimizeVillage:', err)
+  } finally {
+    tradingActive = false
+  }
 }
 
 // ===================== COMBATE =====================
@@ -2376,8 +2525,9 @@ async function handleCommand(message) {
   }
 
   // Discover and craft commands
-  if (cmd === 'descubrir' || cmd === 'buscar' && parts[1] === 'cofres') {
-    await discoverChests(32)
+  if (cmd === 'descubrir' || (cmd === 'buscar' && parts[1] === 'cofres')) {
+    const radius = parseInt(parts[parts.length - 1]) || 32
+    await discoverChests(radius)
     return
   }
 
@@ -2573,8 +2723,7 @@ async function handleCommand(message) {
       sendPrivateMessage('❌ No hay cofre registrado')
       return
     }
-    
-    const parts = message.split(' ')
+
     // Check if it's "agarra todo <item>"
     if (parts[1] === 'todo' && parts.length >= 3) {
       const item = parts.slice(2).join(' ')
@@ -2705,11 +2854,18 @@ bot.on('time', async () => {
 })
 
 bot.on('error', err => {
-  if (err.message && err.message.includes('GoalChanged')) {
+  const msg = err.message || String(err)
+  
+  if (msg.includes('GoalChanged') || msg.includes('timeout')) {
     pathfindingLock = false
     return
   }
-  console.error('❌ Error:', err)
+  
+  if (msg.includes('ECONNREFUSED') || msg.includes('ENOTFOUND')) {
+    console.error('🔌 Error de conexión:', msg)
+  } else {
+    console.error('❌ Error:', msg)
+  }
 })
 
 bot.on('end', () => console.log('🔌 Bot desconectado'))
