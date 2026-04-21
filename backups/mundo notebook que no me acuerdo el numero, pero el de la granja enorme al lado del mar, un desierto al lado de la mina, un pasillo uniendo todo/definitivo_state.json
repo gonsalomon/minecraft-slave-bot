@@ -275,9 +275,9 @@
   },
   "villageBedLocation": null,
   "mineLocation": {
-    "x": -677,
-    "y": 8,
-    "z": -249
+    "x": -876,
+    "y": 63,
+    "z": -515
   },
   "farmLocation": null,
   "villagerTrades": {

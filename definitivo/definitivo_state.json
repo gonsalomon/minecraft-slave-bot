@@ -1,0 +1,18 @@
+{
+  "chestLocations": [],
+  "chestBlacklist": [],
+  "craftingTableLocation": null,
+  "bedLocation": null,
+  "villageLocation": {
+    "x": -394,
+    "y": 69,
+    "z": 628
+  },
+  "villageBedLocation": null,
+  "mineLocation": {
+    "x": -360,
+    "y": -59,
+    "z": 728
+  },
+  "villagerTrades": {}
+}
